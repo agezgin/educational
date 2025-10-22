@@ -25,7 +25,8 @@ from modules import (
     geomech,
     completion,
     production,
-    reporting
+    reporting,
+    advanced_drilling
 )
 
 # Page configuration
@@ -103,6 +104,7 @@ def main():
                 "📝 Well Registry",
                 "📐 Trajectory & Survey",
                 "⚙️ Drilling Operations",
+                "🚀 Advanced Drilling",
                 "📊 Well Logging",
                 "🔬 Geomechanics",
                 "🔧 Completion",
@@ -152,6 +154,9 @@ def main():
 
     elif module == "⚙️ Drilling Operations":
         drilling.show()
+
+    elif module == "🚀 Advanced Drilling":
+        advanced_drilling.show()
 
     elif module == "📊 Well Logging":
         well_logging.show()
