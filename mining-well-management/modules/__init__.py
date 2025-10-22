@@ -6,6 +6,7 @@ from . import (
     logging,
     geomech,
     completion,
+    production,
     reporting
 )
 
@@ -16,5 +17,6 @@ __all__ = [
     'logging',
     'geomech',
     'completion',
+    'production',
     'reporting'
 ]

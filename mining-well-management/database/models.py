@@ -248,6 +248,8 @@ class GeomechanicsData(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    well = relationship("Well", backref="geomechanics_data")
+
 
 # Database initialization functions
 def init_db(db_path='sqlite:///database/wells.db'):

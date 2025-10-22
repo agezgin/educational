@@ -24,6 +24,7 @@ from modules import (
     logging as well_logging,
     geomech,
     completion,
+    production,
     reporting
 )
 
@@ -162,7 +163,7 @@ def main():
         completion.show()
 
     elif module == "📈 Production":
-        show_production()
+        production.show()
 
     elif module == "📑 Reporting":
         reporting.show()
@@ -274,17 +275,6 @@ def show_dashboard():
 
     finally:
         session.close()
-
-
-def show_production():
-    """Production tracking module (placeholder)"""
-    st.header("📈 Production Monitoring")
-    st.info("Production module - Coming soon")
-
-    if st.session_state.selected_well_id:
-        st.write(f"Selected Well ID: {st.session_state.selected_well_id}")
-    else:
-        st.warning("Please select a well from the sidebar")
 
 
 if __name__ == "__main__":
