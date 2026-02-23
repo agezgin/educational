@@ -266,6 +266,14 @@ export const SmartTrackSelector: React.FC<SmartTrackSelectorProps> = memo(({
   const [showSubtitlePrompt, setShowSubtitlePrompt] = useState(false);
   const [showAudioPrompt, setShowAudioPrompt] = useState(false);
   const hasAutoApplied = useRef(false);
+  const promptTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Temizlik: component unmount olunca timeout'lari temizle
+  useEffect(() => {
+    return () => {
+      if (promptTimerRef.current) clearTimeout(promptTimerRef.current);
+    };
+  }, []);
 
   const {
     preferredSubtitleLang,
@@ -357,7 +365,7 @@ export const SmartTrackSelector: React.FC<SmartTrackSelectorProps> = memo(({
 
     // Simdi ses icin sor
     if (!hasAskedAudioPref && audioTracks.length > 1) {
-      setTimeout(() => setShowAudioPrompt(true), 300);
+      promptTimerRef.current = setTimeout(() => setShowAudioPrompt(true), 300);
     }
   }, [
     setPreferredSubtitleLang, addSelectionHistory, subtitleTracks,
@@ -379,7 +387,7 @@ export const SmartTrackSelector: React.FC<SmartTrackSelectorProps> = memo(({
     setShowSubtitlePrompt(false);
     useMediaPreferencesStore.getState().setHasAskedSubtitlePref(true);
     if (!hasAskedAudioPref && audioTracks.length > 1) {
-      setTimeout(() => setShowAudioPrompt(true), 300);
+      promptTimerRef.current = setTimeout(() => setShowAudioPrompt(true), 300);
     }
   }, [hasAskedAudioPref, audioTracks]);
 

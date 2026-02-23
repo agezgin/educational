@@ -53,11 +53,6 @@ export const SeriesScreen: React.FC = () => {
     navigation.navigate('SeriesDetail', { seriesId: item.id });
   }, [navigation]);
 
-  const handlePlayPress = useCallback((item: CatalogItem) => {
-    // Diziler icin detay ekranina git (bolum secimi gerekli)
-    navigation.navigate('SeriesDetail', { seriesId: item.id });
-  }, [navigation]);
-
   const handleAddToList = useCallback((item: CatalogItem) => {
     toggleSeriesFavorite(item.id);
   }, [toggleSeriesFavorite]);
@@ -69,7 +64,7 @@ export const SeriesScreen: React.FC = () => {
         rows={rows}
         platforms={platforms}
         onItemPress={handleItemPress}
-        onPlayPress={handlePlayPress}
+        onPlayPress={handleItemPress}
         onAddToList={handleAddToList}
         activePlatform={activePlatform}
         onPlatformFilter={setActivePlatform}

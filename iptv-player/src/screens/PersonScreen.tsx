@@ -53,32 +53,35 @@ export const PersonScreen: React.FC = () => {
 
   const [data, setData] = useState<PersonData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showFullBio, setShowFullBio] = useState(false);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const result = await getFullPersonData(personId);
-        setData(result);
-      } catch {
-        // Hata durumunda bos kalir
-      } finally {
-        setLoading(false);
-      }
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await getFullPersonData(personId);
+      setData(result);
+    } catch (err: any) {
+      setError(err.message || 'Kisi bilgileri yuklenemedi');
+    } finally {
+      setLoading(false);
     }
-    loadData();
   }, [personId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleCreditPress = useCallback((credit: TMDBPersonCredit) => {
     if (credit.media_type === 'movie') {
-      navigation.navigate('MovieDetail' as never, {
+      navigation.navigate('MovieDetail', {
         movieId: `movie_${credit.id}`,
-      } as never);
+      });
     } else {
-      navigation.navigate('SeriesDetail' as never, {
+      navigation.navigate('SeriesDetail', {
         seriesId: `series_${credit.id}`,
-      } as never);
+      });
     }
   }, [navigation]);
 
@@ -144,13 +147,18 @@ export const PersonScreen: React.FC = () => {
     );
   }
 
-  if (!data) {
+  if (error || !data) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.errorText}>Bilgiler yuklenemedi</Text>
-        <FocusableItem onPress={() => navigation.goBack()} style={styles.retryButton}>
-          <Text style={styles.retryText}>Geri Don</Text>
-        </FocusableItem>
+        <Text style={styles.errorText}>{error || 'Bilgiler yuklenemedi'}</Text>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <FocusableItem onPress={loadData} style={styles.retryButton}>
+            <Text style={styles.retryText}>Tekrar Dene</Text>
+          </FocusableItem>
+          <FocusableItem onPress={() => navigation.goBack()} style={[styles.retryButton, { backgroundColor: colors.background.card }]}>
+            <Text style={styles.retryText}>Geri Don</Text>
+          </FocusableItem>
+        </View>
       </View>
     );
   }

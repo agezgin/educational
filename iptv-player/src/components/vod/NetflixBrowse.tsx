@@ -385,6 +385,7 @@ export const NetflixBrowse: React.FC<NetflixBrowseProps> = memo(({
         initialNumToRender={4}
         maxToRenderPerBatch={3}
         windowSize={3}
+        removeClippedSubviews
       />
     </View>
   );

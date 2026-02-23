@@ -57,10 +57,10 @@ export const MoviesScreen: React.FC = () => {
   }, [navigation]);
 
   const handlePlayPress = useCallback((item: CatalogItem) => {
-    navigation.navigate('VODPlayer' as never, {
+    navigation.navigate('VODPlayer', {
       contentId: item.id,
       contentType: 'movie',
-    } as never);
+    });
   }, [navigation]);
 
   const handleAddToList = useCallback((item: CatalogItem) => {

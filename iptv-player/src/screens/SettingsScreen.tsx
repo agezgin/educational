@@ -92,11 +92,11 @@ export const SettingsScreen: React.FC = () => {
         <SettingsSection title="Playlist Yonetimi">
           <SettingsItem
             label="Playlist Ekle (M3U URL)"
-            onPress={() => navigation.navigate('PlaylistAdd' as never)}
+            onPress={() => navigation.navigate('PlaylistAdd')}
           />
           <SettingsItem
             label="Playlist Ekle (Xtream Codes)"
-            onPress={() => navigation.navigate('PlaylistAdd' as never)}
+            onPress={() => navigation.navigate('PlaylistAdd')}
           />
           <SettingsItem label="Playlistlerim" onPress={() => {}} />
           <SettingsItem label="EPG Kaynagi Ayarla" onPress={() => {}} />

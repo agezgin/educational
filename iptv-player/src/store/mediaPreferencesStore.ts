@@ -169,15 +169,15 @@ export const useMediaPreferencesStore = create<MediaPreferencesState>((set, get)
   // ── Icerik bazli override ──
 
   setContentOverride: (contentId, subtitle, audio) => {
-    const overrides = get().contentOverrides.filter(o => o.contentId !== contentId);
-    overrides.push({
+    const filtered = get().contentOverrides.filter(o => o.contentId !== contentId);
+    const newOverride: ContentOverride = {
       contentId,
       subtitleTrackId: subtitle,
       audioTrackId: audio,
       timestamp: Date.now(),
-    });
+    };
     // Son 200 override tut (eski olanlari temizle)
-    const trimmed = overrides.slice(-200);
+    const trimmed = [...filtered, newOverride].slice(-200);
     set({ contentOverrides: trimmed });
   },
 
@@ -192,10 +192,11 @@ export const useMediaPreferencesStore = create<MediaPreferencesState>((set, get)
   // ── Secim gecmisi ──
 
   addSelectionHistory: (type, languageCode) => {
-    const history = get().selectionHistory;
-    history.push({ type, languageCode, timestamp: Date.now() });
+    const entry: SelectionHistoryEntry = { type, languageCode, timestamp: Date.now() };
+    // Spread ile yeni dizi olustur (mutation onleme)
+    const updated = [...get().selectionHistory, entry];
     // Son 500 kayit tut
-    const trimmed = history.slice(-500);
+    const trimmed = updated.slice(-500);
     set({ selectionHistory: trimmed });
   },
 

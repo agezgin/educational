@@ -103,16 +103,16 @@ export const SeriesDetailScreen: React.FC = () => {
   }, [tmdbId, selectedSeason]);
 
   const handleEpisodePlay = useCallback((episode: TMDBEpisode) => {
-    navigation.navigate('VODPlayer' as never, {
+    navigation.navigate('VODPlayer', {
       contentId: `${seriesId}_s${episode.season_number}e${episode.episode_number}`,
       contentType: 'episode',
-    } as never);
+    });
   }, [navigation, seriesId]);
 
   const handleSimilarPress = useCallback((item: TMDBListItem) => {
-    navigation.navigate('SeriesDetail' as never, {
+    navigation.navigate('SeriesDetail', {
       seriesId: `series_${item.id}`,
-    } as never);
+    });
   }, [navigation]);
 
   if (loading) {

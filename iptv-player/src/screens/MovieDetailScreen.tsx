@@ -86,10 +86,10 @@ export const MovieDetailScreen: React.FC = () => {
   }, [movieId]);
 
   const handlePlay = useCallback(() => {
-    navigation.navigate('VODPlayer' as never, {
+    navigation.navigate('VODPlayer', {
       contentId: movieId,
       contentType: 'movie',
-    } as never);
+    });
   }, [navigation, movieId]);
 
   const handleTrailer = useCallback(() => {
@@ -100,16 +100,16 @@ export const MovieDetailScreen: React.FC = () => {
   }, [data]);
 
   const handleSimilarPress = useCallback((item: TMDBListItem) => {
-    navigation.navigate('MovieDetail' as never, {
+    navigation.navigate('MovieDetail', {
       movieId: `movie_${item.id}`,
-    } as never);
+    });
   }, [navigation]);
 
   const handlePersonPress = useCallback((personId: number, personName: string) => {
-    navigation.navigate('PersonDetail' as never, {
+    navigation.navigate('PersonDetail', {
       personId,
       personName,
-    } as never);
+    });
   }, [navigation]);
 
   if (loading) {

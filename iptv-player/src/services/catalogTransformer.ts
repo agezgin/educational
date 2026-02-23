@@ -627,7 +627,7 @@ function seriesToItem(series: Series): CatalogItem {
 function dedup(items: CatalogItem[]): CatalogItem[] {
   const seen = new Set<string>();
   return items.filter(item => {
-    if (seen.has(item.id)) return false;
+    if (!item?.id || seen.has(item.id)) return false;
     seen.add(item.id);
     return true;
   });

@@ -262,7 +262,7 @@ export function getWatchStatusLabel(progress: WatchProgress): string {
     case 'completed':
       return 'Izlendi';
     case 'watching': {
-      const percent = Math.round((progress.currentTime / progress.totalDuration) * 100);
+      if (progress.totalDuration <= 0) return '';
       const remaining = progress.totalDuration - progress.currentTime;
       const mins = Math.round(remaining / 60);
       if (mins > 60) {
