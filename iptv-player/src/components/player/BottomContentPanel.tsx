@@ -84,6 +84,14 @@ interface BottomContentPanelProps {
   seasons?: number[];
   /** Sezon degistirme */
   onSeasonChange?: (season: number) => void;
+  /** Aktif altyazi bilgisi */
+  currentSubtitleLabel?: string | null;
+  /** Aktif ses dili bilgisi */
+  currentAudioLabel?: string | null;
+  /** Aktif kalite */
+  currentQuality?: string;
+  /** Aktif hiz */
+  currentSpeed?: string;
 }
 
 // ─── Component ──────────────────────────────────────────
@@ -100,6 +108,10 @@ export const BottomContentPanel: React.FC<BottomContentPanelProps> = memo(({
   currentSeason,
   seasons,
   onSeasonChange,
+  currentSubtitleLabel,
+  currentAudioLabel,
+  currentQuality,
+  currentSpeed,
 }) => {
   const slideAnim = useRef(new Animated.Value(400)).current;
   const [activeTab, setActiveTab] = useState<PanelTab>(
@@ -303,10 +315,34 @@ export const BottomContentPanel: React.FC<BottomContentPanelProps> = memo(({
         {activeTab === 'settings' && (
           <View style={styles.settingsSection}>
             {[
-              { key: 'subtitle' as const, icon: '💬', label: 'Altyazı', desc: 'Dil seçimi ve ayarlar' },
-              { key: 'audio' as const, icon: '🔊', label: 'Ses Dili', desc: 'Ses kanalı değiştir' },
-              { key: 'quality' as const, icon: '📺', label: 'Kalite', desc: 'Video kalitesi ayarla' },
-              { key: 'speed' as const, icon: '⚡', label: 'Hız', desc: 'Oynatma hızı değiştir' },
+              {
+                key: 'subtitle' as const,
+                icon: '💬',
+                label: 'Altyazı',
+                desc: 'Dil seçimi ve ayarlar',
+                current: currentSubtitleLabel || 'Kapalı',
+              },
+              {
+                key: 'audio' as const,
+                icon: '🔊',
+                label: 'Ses Dili',
+                desc: 'Ses kanalı değiştir',
+                current: currentAudioLabel || 'Varsayılan',
+              },
+              {
+                key: 'quality' as const,
+                icon: '📺',
+                label: 'Kalite',
+                desc: 'Video kalitesi ayarla',
+                current: currentQuality || 'Otomatik',
+              },
+              {
+                key: 'speed' as const,
+                icon: '⚡',
+                label: 'Hız',
+                desc: 'Oynatma hızı değiştir',
+                current: currentSpeed || '1x',
+              },
             ].map((setting) => (
               <TouchableOpacity
                 key={setting.key}
@@ -318,7 +354,10 @@ export const BottomContentPanel: React.FC<BottomContentPanelProps> = memo(({
                   <Text style={styles.settingLabel}>{setting.label}</Text>
                   <Text style={styles.settingDesc}>{setting.desc}</Text>
                 </View>
-                <Text style={styles.settingArrow}>{'›'}</Text>
+                <View style={styles.settingRight}>
+                  <Text style={styles.settingCurrent}>{setting.current}</Text>
+                  <Text style={styles.settingArrow}>{'›'}</Text>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -618,6 +657,16 @@ const styles = StyleSheet.create({
     color: colors.text.muted,
     fontSize: 12,
     marginTop: 2,
+  },
+  settingRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  settingCurrent: {
+    color: colors.accent.blue,
+    fontSize: 13,
+    fontWeight: '600',
   },
   settingArrow: {
     color: colors.text.muted,

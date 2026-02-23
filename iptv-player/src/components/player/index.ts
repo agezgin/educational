@@ -12,3 +12,4 @@ export { SkipIntroButton, learnIntroPattern } from './SkipIntroButton';
 export type { IntroSegment } from './SkipIntroButton';
 export { BottomContentPanel } from './BottomContentPanel';
 export type { EpisodeItem, RelatedItem, PanelTab } from './BottomContentPanel';
+export { SmartTrackSelector, QuickSwitchBar } from './SmartTrackSelector';

@@ -21,6 +21,7 @@ import {
   PlaylistAddScreen,
   SearchScreen,
   MySeriesScreen,
+  PersonScreen,
 } from '@/screens';
 import { useSettingsStore } from '@/store/settingsStore';
 import { RootStackParamList } from '@/types';
@@ -97,6 +98,9 @@ export const AppNavigator: React.FC = () => {
 
         {/* Takip Edilen Diziler */}
         <Stack.Screen name="MySeries" component={MySeriesScreen} />
+
+        {/* Yonetmen/Oyuncu Detay */}
+        <Stack.Screen name="PersonDetail" component={PersonScreen} />
 
         {/* Ayarlar */}
         <Stack.Screen name="Settings" component={SettingsScreen} />

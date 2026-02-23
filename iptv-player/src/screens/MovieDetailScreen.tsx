@@ -105,6 +105,13 @@ export const MovieDetailScreen: React.FC = () => {
     } as never);
   }, [navigation]);
 
+  const handlePersonPress = useCallback((personId: number, personName: string) => {
+    navigation.navigate('PersonDetail' as never, {
+      personId,
+      personName,
+    } as never);
+  }, [navigation]);
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -201,9 +208,16 @@ export const MovieDetailScreen: React.FC = () => {
                 ))}
               </View>
 
-              {/* Yonetmen */}
+              {/* Yonetmen (tiklanabilir) */}
               {director && (
-                <Text style={styles.directorText}>Yonetmen: {director.name}</Text>
+                <FocusableItem
+                  onPress={() => handlePersonPress(director.id, director.name)}
+                  style={styles.directorLink}
+                >
+                  <Text style={styles.directorText}>
+                    Yonetmen: <Text style={styles.directorName}>{director.name}</Text>
+                  </Text>
+                </FocusableItem>
               )}
 
               {/* Diller */}
@@ -259,7 +273,10 @@ export const MovieDetailScreen: React.FC = () => {
               keyExtractor={item => String(item.id)}
               showsHorizontalScrollIndicator={false}
               renderItem={({ item }) => (
-                <View style={styles.castCard}>
+                <FocusableItem
+                  onPress={() => handlePersonPress(item.id, item.name)}
+                  style={styles.castCard}
+                >
                   {item.profile_path ? (
                     <Image
                       source={{ uri: imageUrl.profile(item.profile_path)! }}
@@ -275,7 +292,7 @@ export const MovieDetailScreen: React.FC = () => {
                   )}
                   <Text style={styles.castName} numberOfLines={1}>{item.name}</Text>
                   <Text style={styles.castCharacter} numberOfLines={1}>{item.character}</Text>
-                </View>
+                </FocusableItem>
               )}
               contentContainerStyle={styles.castList}
             />
@@ -565,10 +582,19 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.text.secondary,
   },
+  directorLink: {
+    marginTop: spacing.md,
+    alignSelf: 'flex-start',
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+  },
   directorText: {
     ...typography.body,
     color: colors.text.secondary,
-    marginTop: spacing.md,
+  },
+  directorName: {
+    color: colors.accent.blue,
+    fontWeight: '600',
   },
   languagesText: {
     ...typography.caption,
@@ -642,6 +668,8 @@ const styles = StyleSheet.create({
   castCard: {
     width: 100,
     alignItems: 'center',
+    borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   castPhoto: {
     width: 80,

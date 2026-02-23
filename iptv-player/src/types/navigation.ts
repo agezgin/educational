@@ -23,6 +23,8 @@ export type RootStackParamList = {
   Search: { contentType?: 'live' | 'movie' | 'series' };
   /** Takip edilen diziler ekrani */
   MySeries: undefined;
+  /** Yonetmen/Oyuncu detay sayfasi */
+  PersonDetail: { personId: number; personName?: string };
 };
 
 declare global {

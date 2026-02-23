@@ -22,6 +22,16 @@ export {
   getTVSeasonDetails,
   searchTVShow,
   getFullTVShowData,
+  // Kisi (Person)
+  getPersonDetails,
+  getPersonCredits,
+  searchPerson,
+  getFullPersonData,
+  // Discover & Trending
+  getTrending,
+  discoverByGenre,
+  getMovieGenres,
+  getTVGenres,
   // Coklu arama
   searchMulti,
 } from './tmdbApi';
@@ -37,6 +47,8 @@ export type {
   TMDBCollection,
   TMDBSeason,
   TMDBEpisode,
+  TMDBPerson,
+  TMDBPersonCredit,
 } from './tmdbApi';
 
 // TMDB Matcher

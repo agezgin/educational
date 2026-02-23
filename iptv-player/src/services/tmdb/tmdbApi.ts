@@ -388,6 +388,162 @@ export async function searchMulti(query: string): Promise<TMDBListItem[]> {
   );
 }
 
+// ─── KISI (PERSON) API FONKSIYONLARI ────────────────────────
+
+export interface TMDBPerson {
+  id: number;
+  name: string;
+  biography: string;
+  profile_path: string | null;
+  birthday: string | null;
+  deathday: string | null;
+  place_of_birth: string | null;
+  known_for_department: string;
+  also_known_as: string[];
+  gender: number;
+  popularity: number;
+}
+
+export interface TMDBPersonCredit {
+  id: number;
+  title?: string;
+  name?: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  vote_average: number;
+  overview: string;
+  release_date?: string;
+  first_air_date?: string;
+  media_type: 'movie' | 'tv';
+  character?: string;
+  job?: string;
+  department?: string;
+  episode_count?: number;
+}
+
+/**
+ * Kisi detay bilgisi (yonetmen, oyuncu, vb.)
+ */
+export async function getPersonDetails(personId: number): Promise<TMDBPerson> {
+  return tmdbFetch(`/person/${personId}`);
+}
+
+/**
+ * Kisinin tum yapimlarini (film + dizi) getirir.
+ * Hem oyuncu olarak hem de ekip olarak calismalarini dondurur.
+ */
+export async function getPersonCredits(personId: number): Promise<{
+  cast: TMDBPersonCredit[];
+  crew: TMDBPersonCredit[];
+}> {
+  return tmdbFetch(`/person/${personId}/combined_credits`);
+}
+
+/**
+ * Kisi arama (isim ile).
+ */
+export async function searchPerson(query: string): Promise<Array<{
+  id: number;
+  name: string;
+  profile_path: string | null;
+  known_for_department: string;
+  known_for: TMDBListItem[];
+}>> {
+  const data = await tmdbFetch<{ results: Array<{
+    id: number;
+    name: string;
+    profile_path: string | null;
+    known_for_department: string;
+    known_for: TMDBListItem[];
+  }> }>('/search/person', { query });
+  return data.results;
+}
+
+/**
+ * Kisi detay sayfasi icin gereken tum verileri tek seferde ceker.
+ */
+export async function getFullPersonData(personId: number) {
+  const [details, credits] = await Promise.all([
+    getPersonDetails(personId),
+    getPersonCredits(personId),
+  ]);
+
+  // Oyunculuk - puana gore sirala, en iyi yapimlar basta
+  const actingCredits = credits.cast
+    .filter(c => c.vote_average > 0)
+    .sort((a, b) => b.vote_average - a.vote_average);
+
+  // Yonetmenlik
+  const directingCredits = credits.crew
+    .filter(c => c.job === 'Director' || c.department === 'Directing')
+    .sort((a, b) => b.vote_average - a.vote_average);
+
+  // Yapimcilik
+  const producingCredits = credits.crew
+    .filter(c => c.department === 'Production')
+    .sort((a, b) => b.vote_average - a.vote_average);
+
+  // Film vs Dizi ayirimi
+  const movies = actingCredits.filter(c => c.media_type === 'movie');
+  const tvShows = actingCredits.filter(c => c.media_type === 'tv');
+
+  return {
+    details,
+    actingCredits: actingCredits.slice(0, 30),
+    directingCredits: directingCredits.slice(0, 20),
+    producingCredits: producingCredits.slice(0, 10),
+    movies: movies.slice(0, 20),
+    tvShows: tvShows.slice(0, 20),
+    totalCredits: credits.cast.length + credits.crew.length,
+  };
+}
+
+// ─── TRENDING / DISCOVER ────────────────────────────────────
+
+/**
+ * Trend icerikler (gunluk/haftalik).
+ */
+export async function getTrending(
+  mediaType: 'movie' | 'tv' | 'all' = 'all',
+  timeWindow: 'day' | 'week' = 'week',
+): Promise<TMDBListItem[]> {
+  const data = await tmdbFetch<{ results: TMDBListItem[] }>(
+    `/trending/${mediaType}/${timeWindow}`,
+  );
+  return data.results;
+}
+
+/**
+ * Genre'a gore icerik kesfet.
+ */
+export async function discoverByGenre(
+  mediaType: 'movie' | 'tv',
+  genreId: number,
+  page = 1,
+): Promise<TMDBListItem[]> {
+  const data = await tmdbFetch<{ results: TMDBListItem[] }>(
+    `/discover/${mediaType}`,
+    { with_genres: String(genreId), page: String(page), sort_by: 'popularity.desc' },
+  );
+  return data.results;
+}
+
+/**
+ * Film turleri listesi.
+ */
+export async function getMovieGenres(): Promise<Array<{ id: number; name: string }>> {
+  const data = await tmdbFetch<{ genres: Array<{ id: number; name: string }> }>('/genre/movie/list');
+  return data.genres;
+}
+
+/**
+ * Dizi turleri listesi.
+ */
+export async function getTVGenres(): Promise<Array<{ id: number; name: string }>> {
+  const data = await tmdbFetch<{ genres: Array<{ id: number; name: string }> }>('/genre/tv/list');
+  return data.genres;
+}
+
 // ─── TOPLU VERİ CEKME (Detay sayfasi icin tek seferde) ───────
 
 /**
