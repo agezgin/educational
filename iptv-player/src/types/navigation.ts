@@ -21,6 +21,8 @@ export type RootStackParamList = {
   SeriesDetail: { seriesId: string };
   Settings: undefined;
   Search: { contentType?: 'live' | 'movie' | 'series' };
+  /** Takip edilen diziler ekrani */
+  MySeries: undefined;
 };
 
 declare global {

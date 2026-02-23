@@ -8,3 +8,4 @@ export { EPGScreen } from './EPGScreen';
 export { SettingsScreen } from './SettingsScreen';
 export { PlaylistAddScreen } from './PlaylistAddScreen';
 export { SearchScreen, calculateSearchScore, universalSearch } from './SearchScreen';
+export { MySeriesScreen } from './MySeriesScreen';

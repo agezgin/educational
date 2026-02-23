@@ -20,6 +20,7 @@ import {
   SettingsScreen,
   PlaylistAddScreen,
   SearchScreen,
+  MySeriesScreen,
 } from '@/screens';
 import { useSettingsStore } from '@/store/settingsStore';
 import { RootStackParamList } from '@/types';
@@ -93,6 +94,9 @@ export const AppNavigator: React.FC = () => {
 
         {/* Arama */}
         <Stack.Screen name="Search" component={SearchScreen} />
+
+        {/* Takip Edilen Diziler */}
+        <Stack.Screen name="MySeries" component={MySeriesScreen} />
 
         {/* Ayarlar */}
         <Stack.Screen name="Settings" component={SettingsScreen} />
