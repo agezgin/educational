@@ -14,6 +14,8 @@ import {
   PlayerScreen,
   MoviesScreen,
   SeriesScreen,
+  MovieDetailScreen,
+  SeriesDetailScreen,
   EPGScreen,
   SettingsScreen,
   PlaylistAddScreen,
@@ -79,9 +81,11 @@ export const AppNavigator: React.FC = () => {
 
         {/* Filmler */}
         <Stack.Screen name="Movies" component={MoviesScreen} />
+        <Stack.Screen name="MovieDetail" component={MovieDetailScreen} />
 
         {/* Diziler */}
         <Stack.Screen name="SeriesList" component={SeriesScreen} />
+        <Stack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
 
         {/* EPG - Program Rehberi */}
         <Stack.Screen name="EPG" component={EPGScreen} />
