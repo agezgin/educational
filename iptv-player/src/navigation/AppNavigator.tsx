@@ -19,6 +19,7 @@ import {
   EPGScreen,
   SettingsScreen,
   PlaylistAddScreen,
+  SearchScreen,
 } from '@/screens';
 import { useSettingsStore } from '@/store/settingsStore';
 import { RootStackParamList } from '@/types';
@@ -89,6 +90,9 @@ export const AppNavigator: React.FC = () => {
 
         {/* EPG - Program Rehberi */}
         <Stack.Screen name="EPG" component={EPGScreen} />
+
+        {/* Arama */}
+        <Stack.Screen name="Search" component={SearchScreen} />
 
         {/* Ayarlar */}
         <Stack.Screen name="Settings" component={SettingsScreen} />

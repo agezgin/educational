@@ -7,3 +7,4 @@ export { SeriesDetailScreen } from './SeriesDetailScreen';
 export { EPGScreen } from './EPGScreen';
 export { SettingsScreen } from './SettingsScreen';
 export { PlaylistAddScreen } from './PlaylistAddScreen';
+export { SearchScreen, calculateSearchScore, universalSearch } from './SearchScreen';
