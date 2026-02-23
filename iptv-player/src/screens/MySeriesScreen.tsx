@@ -37,7 +37,8 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
+import { useNavigation } from '@react-navigation/native';
 import {
   useSeriesTrackingStore,
   TrackedSeries,
@@ -64,7 +65,8 @@ const STATUS_TABS: { key: SeriesStatus | 'all'; label: string; icon: string }[] 
 
 // ─── Component ──────────────────────────────────────────
 
-export function MySeriesScreen({ navigation }: any) {
+export function MySeriesScreen() {
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<SeriesStatus | 'all'>('all');
   const [sortBy, setSortBy] = useState<'lastWatched' | 'name' | 'rating' | 'progress'>('lastWatched');
   const { width: screenWidth } = Dimensions.get('window');

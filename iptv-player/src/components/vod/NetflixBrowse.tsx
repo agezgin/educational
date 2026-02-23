@@ -24,7 +24,6 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
-  Animated,
 } from 'react-native';
 import { colors, spacing, borderRadius } from '@/theme';
 import type { CatalogRow, CatalogItem, PlatformInfo } from '@/services/catalogTransformer';

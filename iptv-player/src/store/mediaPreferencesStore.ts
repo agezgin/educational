@@ -257,6 +257,7 @@ const SHORT_TO_LONG: Record<string, string> = {
 };
 
 export function normalizeLanguageCode(code: string): string {
+  if (!code) return '';
   const lower = code.toLowerCase().trim();
   return SHORT_TO_LONG[lower] || lower;
 }
@@ -266,6 +267,7 @@ export function normalizeLanguageCode(code: string): string {
  * 'tr' == 'tur', 'en' == 'eng' vb.
  */
 export function matchesLanguage(code1: string, code2: string): boolean {
+  if (!code1 || !code2) return false;
   return normalizeLanguageCode(code1) === normalizeLanguageCode(code2);
 }
 

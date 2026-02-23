@@ -39,6 +39,10 @@ export const imageUrl = {
 // ─── API Fetch Yardimcisi ─────────────────────────────────────
 
 async function tmdbFetch<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
+  if (!API_KEY) {
+    throw new Error('TMDB API key ayarlanmamis. setTMDBApiKey() ile ayarlayin.');
+  }
+
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
   url.searchParams.set('api_key', API_KEY);
   url.searchParams.set('language', 'tr-TR'); // Turkce oncelikli
@@ -48,11 +52,18 @@ async function tmdbFetch<T>(endpoint: string, params?: Record<string, string>): 
     }
   }
 
-  const response = await fetch(url.toString());
-  if (!response.ok) {
-    throw new Error(`TMDB API hatasi: ${response.status} ${response.statusText}`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(url.toString(), { signal: controller.signal });
+    if (!response.ok) {
+      throw new Error(`TMDB API hatasi: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  } finally {
+    clearTimeout(timeoutId);
   }
-  return response.json();
 }
 
 // ─── Response Type'lari ───────────────────────────────────────
@@ -551,8 +562,10 @@ export async function getTVGenres(): Promise<Array<{ id: number; name: string }>
  * Paralel API cagrilari ile hiz optimizasyonu.
  */
 export async function getFullMovieData(movieId: number) {
-  const [details, credits, videos, similar, recommendations, reviews] = await Promise.all([
-    getMovieDetails(movieId),
+  // Detay zorunlu - digerleri hata durumunda bos donsun
+  const details = await getMovieDetails(movieId);
+
+  const [creditsResult, videosResult, similarResult, recsResult, reviewsResult] = await Promise.allSettled([
     getMovieCredits(movieId),
     getMovieVideos(movieId),
     getSimilarMovies(movieId),
@@ -560,14 +573,24 @@ export async function getFullMovieData(movieId: number) {
     getMovieReviews(movieId),
   ]);
 
+  const credits = creditsResult.status === 'fulfilled' ? creditsResult.value : { cast: [], crew: [] };
+  const videos = videosResult.status === 'fulfilled' ? videosResult.value : [];
+  const similar = similarResult.status === 'fulfilled' ? similarResult.value : [];
+  const recommendations = recsResult.status === 'fulfilled' ? recsResult.value : [];
+  const reviews = reviewsResult.status === 'fulfilled' ? reviewsResult.value : [];
+
   // Koleksiyon varsa (seri/devam filmleri) onu da cek
   let collection: TMDBCollection | null = null;
-  if (details.belongs_to_collection) {
-    collection = await getMovieCollection(details.belongs_to_collection.id);
+  if (details.belongs_to_collection?.id) {
+    try {
+      collection = await getMovieCollection(details.belongs_to_collection.id);
+    } catch {
+      // Koleksiyon yuklenemezse devam et
+    }
   }
 
   // Yonetmeni bul
-  const director = credits.crew.find(c => c.job === 'Director');
+  const director = credits.crew?.find(c => c.job === 'Director');
 
   // Trailer'i bul (YouTube)
   const trailer = videos.find(
@@ -576,7 +599,7 @@ export async function getFullMovieData(movieId: number) {
 
   return {
     details,
-    cast: credits.cast.slice(0, 15), // Ilk 15 oyuncu
+    cast: (credits.cast || []).slice(0, 15),
     director,
     trailer,
     allVideos: videos,
@@ -591,8 +614,10 @@ export async function getFullMovieData(movieId: number) {
  * Dizi detay sayfasi icin gereken tum verileri tek seferde ceker.
  */
 export async function getFullTVShowData(tvId: number) {
-  const [details, credits, videos, similar, recommendations, reviews] = await Promise.all([
-    getTVShowDetails(tvId),
+  // Detay zorunlu - digerleri hata durumunda bos donsun
+  const details = await getTVShowDetails(tvId);
+
+  const [creditsResult, videosResult, similarResult, recsResult, reviewsResult] = await Promise.allSettled([
     getTVShowCredits(tvId),
     getTVShowVideos(tvId),
     getSimilarTVShows(tvId),
@@ -600,13 +625,19 @@ export async function getFullTVShowData(tvId: number) {
     getTVShowReviews(tvId),
   ]);
 
+  const credits = creditsResult.status === 'fulfilled' ? creditsResult.value : { cast: [], crew: [] };
+  const videos = videosResult.status === 'fulfilled' ? videosResult.value : [];
+  const similar = similarResult.status === 'fulfilled' ? similarResult.value : [];
+  const recommendations = recsResult.status === 'fulfilled' ? recsResult.value : [];
+  const reviews = reviewsResult.status === 'fulfilled' ? reviewsResult.value : [];
+
   const trailer = videos.find(
     v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser')
   );
 
   return {
     details,
-    cast: credits.cast.slice(0, 15),
+    cast: (credits.cast || []).slice(0, 15),
     creators: details.created_by,
     trailer,
     allVideos: videos,

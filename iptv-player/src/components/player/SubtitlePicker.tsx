@@ -10,7 +10,7 @@
  * - Kayitli tercih yaninda pin ikonu
  */
 
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { FocusableItem } from '@/components/common';
 import { SubtitleTrack } from '@/core/subtitle';
@@ -52,6 +52,13 @@ export const SubtitlePicker: React.FC<SubtitlePickerProps> = memo(({
     addSelectionHistory,
   } = useMediaPreferencesStore();
   const [showRememberHint, setShowRememberHint] = useState(false);
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    };
+  }, []);
 
   if (!visible) return null;
 
@@ -65,13 +72,15 @@ export const SubtitlePicker: React.FC<SubtitlePickerProps> = memo(({
   const handleSetDefault = (language: string, label: string) => {
     setPreferredSubtitleLang({ code: language, label });
     setShowRememberHint(true);
-    setTimeout(() => setShowRememberHint(false), 2000);
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    hintTimerRef.current = setTimeout(() => setShowRememberHint(false), 2000);
   };
 
   const handleSetOffDefault = () => {
     setPreferredSubtitleLang(SUBTITLE_OFF);
     setShowRememberHint(true);
-    setTimeout(() => setShowRememberHint(false), 2000);
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    hintTimerRef.current = setTimeout(() => setShowRememberHint(false), 2000);
   };
 
   const isPreferred = (language: string) =>

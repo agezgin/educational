@@ -148,12 +148,18 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
       ? progress.currentTime / progress.totalDuration
       : 0;
 
-    // Otomatik durum tespiti
+    // Otomatik durum tespiti - kullanicinin manuel ayarladigi durumu (abandoned vb.) ezme
     let status = progress.status;
-    if (percentWatched >= 0.92) {
-      status = 'completed';
-    } else if (percentWatched > 0.02) {
-      status = 'watching';
+    const existingProgress = get().progressMap[progress.contentId];
+    const isUserSetStatus = existingProgress &&
+      (existingProgress.status === 'abandoned' || existingProgress.status === 'completed');
+
+    if (!isUserSetStatus) {
+      if (percentWatched >= 0.92) {
+        status = 'completed';
+      } else if (percentWatched > 0.02) {
+        status = 'watching';
+      }
     }
 
     set(state => ({

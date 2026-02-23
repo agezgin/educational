@@ -10,7 +10,7 @@
  * - Kayitli tercih yaninda pin ikonu
  */
 
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { FocusableItem } from '@/components/common';
 import { AudioTrack, getTrackDescription } from '@/core/audio';
@@ -41,6 +41,13 @@ export const AudioTrackPicker: React.FC<AudioTrackPickerProps> = memo(({
     addSelectionHistory,
   } = useMediaPreferencesStore();
   const [showRememberHint, setShowRememberHint] = useState(false);
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    };
+  }, []);
 
   if (!visible || tracks.length === 0) return null;
 
@@ -53,7 +60,8 @@ export const AudioTrackPicker: React.FC<AudioTrackPickerProps> = memo(({
   const handleSetDefault = (language: string, label: string) => {
     setPreferredAudioLang({ code: language, label });
     setShowRememberHint(true);
-    setTimeout(() => setShowRememberHint(false), 2000);
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    hintTimerRef.current = setTimeout(() => setShowRememberHint(false), 2000);
   };
 
   const isPreferred = (language: string) =>

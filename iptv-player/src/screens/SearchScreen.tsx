@@ -38,7 +38,8 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
+import { useNavigation } from '@react-navigation/native';
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -73,7 +74,8 @@ const SPECIAL_KEYS = [
 
 // ─── Component ──────────────────────────────────────────
 
-export function SearchScreen({ navigation }: any) {
+export function SearchScreen() {
+  const navigation = useNavigation();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<SearchCategory>('all');
   const [results, setResults] = useState<SearchResult[]>([]);

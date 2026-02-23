@@ -62,7 +62,7 @@ export const TrackButton: React.FC<TrackButtonProps> = memo(({
 
   const handlePress = useCallback(() => {
     if (tracked) {
-      setShowStatusPicker(!showStatusPicker);
+      setShowStatusPicker(prev => !prev);
     } else {
       trackSeries({
         seriesId,
@@ -80,7 +80,7 @@ export const TrackButton: React.FC<TrackButtonProps> = memo(({
         rating,
       });
     }
-  }, [tracked, seriesId, seriesName, posterUrl, totalSeasons, genre, year, rating, showStatusPicker, trackSeries]);
+  }, [tracked, seriesId, seriesName, posterUrl, totalSeasons, genre, year, rating, trackSeries]);
 
   const handleLongPress = useCallback(() => {
     if (tracked) {

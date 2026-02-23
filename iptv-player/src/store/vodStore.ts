@@ -137,33 +137,47 @@ export const useVODStore = create<VODState>((set, get) => ({
   },
 
   toggleMovieFavorite: (movieId) => {
-    set(state => ({
-      movies: state.movies.map(m =>
+    set(state => {
+      const updatedMovies = state.movies.map(m =>
         m.id === movieId ? { ...m, isFavorite: !m.isFavorite } : m
-      ),
-    }));
+      );
+      return {
+        movies: updatedMovies,
+        activeMovies: state.activeMovies.map(m =>
+          m.id === movieId ? { ...m, isFavorite: !m.isFavorite } : m
+        ),
+      };
+    });
   },
 
   toggleSeriesFavorite: (seriesId) => {
-    set(state => ({
-      seriesList: state.seriesList.map(s =>
+    set(state => {
+      const updatedSeries = state.seriesList.map(s =>
         s.id === seriesId ? { ...s, isFavorite: !s.isFavorite } : s
-      ),
-    }));
+      );
+      return {
+        seriesList: updatedSeries,
+        activeSeries: state.activeSeries.map(s =>
+          s.id === seriesId ? { ...s, isFavorite: !s.isFavorite } : s
+        ),
+      };
+    });
   },
 
   searchMovies: (query) => {
+    if (!query) return [];
     const lowerQuery = query.toLowerCase();
     return get().movies.filter(m =>
-      m.name.toLowerCase().includes(lowerQuery) ||
+      (m.name && m.name.toLowerCase().includes(lowerQuery)) ||
       (m.genre && m.genre.toLowerCase().includes(lowerQuery))
     );
   },
 
   searchSeries: (query) => {
+    if (!query) return [];
     const lowerQuery = query.toLowerCase();
     return get().seriesList.filter(s =>
-      s.name.toLowerCase().includes(lowerQuery) ||
+      (s.name && s.name.toLowerCase().includes(lowerQuery)) ||
       (s.genre && s.genre.toLowerCase().includes(lowerQuery))
     );
   },

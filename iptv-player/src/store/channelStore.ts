@@ -56,22 +56,20 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
   setChannels: (channels) => {
     const groups = groupChannels(channels);
 
-    // Favori bilgisini uygula
+    // Favori bilgisini immutable olarak uygula
     const favIds = get().favoriteIds;
-    if (favIds.size > 0) {
-      for (const ch of channels) {
-        ch.isFavorite = favIds.has(ch.id);
-      }
-    }
+    const updatedChannels = favIds.size > 0
+      ? channels.map(ch => ({ ...ch, isFavorite: favIds.has(ch.id) }))
+      : channels;
 
     // Cache'e kaydet
-    cacheManager.memory.setChannels(channels);
-    cacheManager.disk.saveChannels(channels);
+    cacheManager.memory.setChannels(updatedChannels);
+    cacheManager.disk.saveChannels(updatedChannels);
 
     set({
-      channels,
-      groups,
-      activeGroupChannels: channels, // Basta tum kanallari goster
+      channels: updatedChannels,
+      groups: groupChannels(updatedChannels),
+      activeGroupChannels: updatedChannels, // Basta tum kanallari goster
     });
   },
 
@@ -102,15 +100,18 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
     const { activeGroupChannels } = get();
     const index = activeGroupChannels.findIndex(ch => ch.id === channel.id);
 
-    // Izlenme sayisini artir
-    channel.watchCount++;
-    channel.lastWatched = Date.now();
+    // Izlenme sayisini immutable olarak artir
+    const updatedChannel = {
+      ...channel,
+      watchCount: (channel.watchCount || 0) + 1,
+      lastWatched: Date.now(),
+    };
 
     // Son izlenen kanali cache'e kaydet
-    cacheManager.disk.saveLastChannelId(channel.id);
+    cacheManager.disk.saveLastChannelId(updatedChannel.id);
 
     set({
-      currentChannel: channel,
+      currentChannel: updatedChannel,
       currentChannelIndex: index >= 0 ? index : 0,
     });
   },

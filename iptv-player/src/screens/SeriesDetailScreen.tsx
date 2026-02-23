@@ -58,32 +58,39 @@ export const SeriesDetailScreen: React.FC = () => {
   const [selectedSeason, setSelectedSeason] = useState(1);
   const [seasonData, setSeasonData] = useState<TMDBSeason | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [seasonLoading, setSeasonLoading] = useState(false);
 
   const tmdbId = parseInt(seriesId.replace('series_', ''), 10);
 
   // Dizi verilerini cek
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        if (isNaN(tmdbId)) return;
-
-        const data = await getFullTVShowData(tmdbId);
-        setDetails(data.details);
-        setCast(data.cast);
-        setTrailer(data.trailer || null);
-        setSimilar(data.similar);
-        setRecommendations(data.recommendations);
-        setReviews(data.reviews);
-      } catch (err) {
-        console.error('Dizi verisi yuklenemedi:', err);
-      } finally {
-        setLoading(false);
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      if (isNaN(tmdbId)) {
+        setError('Gecersiz dizi ID');
+        return;
       }
+
+      const data = await getFullTVShowData(tmdbId);
+      setDetails(data.details);
+      setCast(data.cast);
+      setTrailer(data.trailer || null);
+      setSimilar(data.similar);
+      setRecommendations(data.recommendations);
+      setReviews(data.reviews);
+    } catch (err: any) {
+      console.error('Dizi verisi yuklenemedi:', err);
+      setError(err.message || 'Dizi bilgileri yuklenemedi');
+    } finally {
+      setLoading(false);
     }
-    loadData();
   }, [tmdbId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Sezon bolumlerini cek
   useEffect(() => {
@@ -124,7 +131,31 @@ export const SeriesDetailScreen: React.FC = () => {
     );
   }
 
-  if (!details) return null;
+  if (error || !details) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={{ color: colors.status.danger, fontSize: 48, marginBottom: spacing.md }}>!</Text>
+        <Text style={{ ...typography.h3, color: colors.text.primary, marginBottom: spacing.sm }}>
+          {error || 'Dizi bilgileri bulunamadi'}
+        </Text>
+        <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg }}>
+          <FocusableItem
+            onPress={loadData}
+            style={{ backgroundColor: colors.accent.blue, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 0 }}
+            hasTVPreferredFocus
+          >
+            <Text style={{ ...typography.body, color: colors.white }}>Tekrar Dene</Text>
+          </FocusableItem>
+          <FocusableItem
+            onPress={() => navigation.goBack()}
+            style={{ backgroundColor: colors.background.card, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 0 }}
+          >
+            <Text style={{ ...typography.body, color: colors.text.secondary }}>Geri Don</Text>
+          </FocusableItem>
+        </View>
+      </View>
+    );
+  }
 
   const year = details.first_air_date?.split('-')[0];
   const genres = details.genres.map(g => g.name).join(', ');
