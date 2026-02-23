@@ -21,7 +21,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
 import {
   useMediaPreferencesStore,
   SUPPORTED_LANGUAGES,
@@ -83,7 +83,7 @@ const SelectionToast: React.FC<{
 
       return () => clearTimeout(timer);
     }
-  }, [visible, opacity, translateY]);
+  }, [visible]); // eslint-disable-line react-hooks/exhaustive-deps -- animated refs stable
 
   if (!visible) return null;
 

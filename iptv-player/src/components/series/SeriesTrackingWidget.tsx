@@ -17,7 +17,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors, spacing } from '@/theme';
 import {
   useSeriesTrackingStore,
   SeriesStatus,
@@ -148,7 +148,7 @@ const STATUS_OPTIONS: { key: SeriesStatus; label: string; icon: string }[] = [
   { key: 'dropped', label: 'Bırakıldı', icon: '✕' },
 ];
 
-export function StatusPicker({ seriesId, currentStatus, onClose }: StatusPickerProps) {
+export const StatusPicker: React.FC<StatusPickerProps> = memo(({ seriesId, currentStatus, onClose }) => {
   const { updateStatus } = useSeriesTrackingStore();
 
   return (
@@ -177,7 +177,8 @@ export function StatusPicker({ seriesId, currentStatus, onClose }: StatusPickerP
       })}
     </View>
   );
-}
+});
+StatusPicker.displayName = 'StatusPicker';
 
 // ─── User Rating Input ──────────────────────────────────
 
@@ -199,7 +200,7 @@ export const UserRatingInput: React.FC<UserRatingProps> = memo(({ seriesId }) =>
       <View style={styles.ratingStars}>
         {Array.from({ length: 10 }, (_, i) => (
           <TouchableOpacity
-            key={i}
+            key={`star_${i}`}
             onPress={() => setUserRating(seriesId, i + 1 === currentRating ? null : i + 1)}
             style={styles.starButton}
           >

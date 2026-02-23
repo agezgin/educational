@@ -14,7 +14,7 @@
  * - Image caching (posterler onceden yuklenir)
  */
 
-import React, { useState, useCallback, useRef, memo } from 'react';
+import React, { useState, useCallback, useRef, memo, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -26,7 +26,7 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors, spacing, borderRadius } from '@/theme';
 import type { CatalogRow, CatalogItem, PlatformInfo } from '@/services/catalogTransformer';
 
 // ─── Types ──────────────────────────────────────────────
@@ -63,7 +63,13 @@ const HeroBanner: React.FC<{
   isInWatchlist?: boolean;
 }> = memo(({ items, onItemPress, onPlayPress, onAddToList, isInWatchlist }) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const item = items[activeIndex];
+
+  // Items degistiginde index'i sifirla
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [items]);
+
+  const item = items[activeIndex] || items[0];
   if (!item) return null;
 
   return (
@@ -127,9 +133,9 @@ const HeroBanner: React.FC<{
       {/* Sayfa indicator'lari */}
       {items.length > 1 && (
         <View style={styles.heroDots}>
-          {items.map((_, i) => (
+          {items.map((heroItem, i) => (
             <TouchableOpacity
-              key={i}
+              key={heroItem.id}
               style={[styles.heroDot, i === activeIndex && styles.heroDotActive]}
               onPress={() => setActiveIndex(i)}
             />
@@ -330,17 +336,20 @@ export const NetflixBrowse: React.FC<NetflixBrowseProps> = memo(({
   likedIds,
 }) => {
   // Hero row'u ayir
-  const heroRow = rows.find(r => r.type === 'hero');
-  const contentRows = rows.filter(r => r.type !== 'hero');
+  const heroRow = useMemo(() => rows.find(r => r.type === 'hero'), [rows]);
+  const contentRows = useMemo(() => rows.filter(r => r.type !== 'hero'), [rows]);
 
   // Platform filtresine gore satirlari filtrele
-  const filteredRows = activePlatform
-    ? contentRows.filter(r =>
-        r.type === 'platform' ? r.title.includes(activePlatform) :
-        r.type === 'continue_watching' || r.type === 'favorites' ||
-        r.items.some(i => i.platform === activePlatform),
-      )
-    : contentRows;
+  const filteredRows = useMemo(() =>
+    activePlatform
+      ? contentRows.filter(r =>
+          r.type === 'platform' ? r.title.includes(activePlatform) :
+          r.type === 'continue_watching' || r.type === 'favorites' ||
+          r.items.some(i => i.platform === activePlatform),
+        )
+      : contentRows,
+    [contentRows, activePlatform],
+  );
 
   const renderRow = useCallback(({ item: row }: { item: CatalogRow }) => (
     <ContentRow

@@ -27,7 +27,7 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors, spacing } from '@/theme';
 import type { WatchProgress } from '@/store/watchlistStore';
 import { getWatchStatusLabel, getWatchPercent } from '@/store/watchlistStore';
 
