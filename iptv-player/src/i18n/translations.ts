@@ -1,0 +1,186 @@
+/**
+ * Coklu dil destegi - Turkce / English / Deutsch
+ * Ilk ve tek tam Turkce IPTV player!
+ */
+
+export type TranslationKey = keyof typeof tr;
+
+export const tr = {
+  // Genel
+  appName: 'TurkIPTV Player',
+  back: 'Geri',
+  save: 'Kaydet',
+  cancel: 'Iptal',
+  search: 'Ara',
+  settings: 'Ayarlar',
+  loading: 'Yukleniyor...',
+  error: 'Hata',
+  retry: 'Tekrar Dene',
+
+  // Ana Ekran
+  favorites: 'Favoriler',
+  all: 'Tumu',
+  movies: 'Filmler',
+  series: 'Diziler',
+  live: 'CANLI',
+
+  // Kategoriler
+  news: 'Haber',
+  sports: 'Spor',
+  cinema: 'Sinema',
+  entertainment: 'Eglence',
+  kids: 'Cocuk',
+  music: 'Muzik',
+  international: 'Uluslararasi',
+
+  // EPG
+  epg: 'Program Rehberi',
+  now: 'Su an',
+  next: 'Sonra',
+  today: 'Bugun',
+  tomorrow: 'Yarin',
+
+  // Player
+  channelUp: 'Kanal +',
+  channelDown: 'Kanal -',
+  volume: 'Ses',
+
+  // Film/Dizi
+  season: 'Sezon',
+  episode: 'Bolum',
+  continueWatching: 'Kaldigi Yerden Devam Et',
+  watchFromStart: 'Bastan Izle',
+  addToFavorites: 'Favorilere Ekle',
+  removeFromFavorites: 'Favorilerden Kaldir',
+
+  // Ayarlar
+  playlistManagement: 'Playlist Yonetimi',
+  addPlaylist: 'Playlist Ekle',
+  appearance: 'Gorunum',
+  theme: 'Tema',
+  playback: 'Oynatma',
+  parentalControl: 'Ebeveyn Kontrolu',
+  language: 'Dil',
+  about: 'Hakkinda',
+  version: 'Surum',
+
+  // Playlist
+  playlistName: 'Playlist Adi',
+  m3uUrl: 'M3U URL',
+  serverUrl: 'Server URL',
+  username: 'Kullanici Adi',
+  password: 'Sifre',
+  saveAndLoad: 'Kaydet ve Yukle',
+} as const;
+
+export const en: Record<TranslationKey, string> = {
+  appName: 'TurkIPTV Player',
+  back: 'Back',
+  save: 'Save',
+  cancel: 'Cancel',
+  search: 'Search',
+  settings: 'Settings',
+  loading: 'Loading...',
+  error: 'Error',
+  retry: 'Retry',
+  favorites: 'Favorites',
+  all: 'All',
+  movies: 'Movies',
+  series: 'Series',
+  live: 'LIVE',
+  news: 'News',
+  sports: 'Sports',
+  cinema: 'Cinema',
+  entertainment: 'Entertainment',
+  kids: 'Kids',
+  music: 'Music',
+  international: 'International',
+  epg: 'TV Guide',
+  now: 'Now',
+  next: 'Next',
+  today: 'Today',
+  tomorrow: 'Tomorrow',
+  channelUp: 'Channel +',
+  channelDown: 'Channel -',
+  volume: 'Volume',
+  season: 'Season',
+  episode: 'Episode',
+  continueWatching: 'Continue Watching',
+  watchFromStart: 'Watch from Start',
+  addToFavorites: 'Add to Favorites',
+  removeFromFavorites: 'Remove from Favorites',
+  playlistManagement: 'Playlist Management',
+  addPlaylist: 'Add Playlist',
+  appearance: 'Appearance',
+  theme: 'Theme',
+  playback: 'Playback',
+  parentalControl: 'Parental Control',
+  language: 'Language',
+  about: 'About',
+  version: 'Version',
+  playlistName: 'Playlist Name',
+  m3uUrl: 'M3U URL',
+  serverUrl: 'Server URL',
+  username: 'Username',
+  password: 'Password',
+  saveAndLoad: 'Save and Load',
+};
+
+export const de: Record<TranslationKey, string> = {
+  appName: 'TurkIPTV Player',
+  back: 'Zuruck',
+  save: 'Speichern',
+  cancel: 'Abbrechen',
+  search: 'Suchen',
+  settings: 'Einstellungen',
+  loading: 'Laden...',
+  error: 'Fehler',
+  retry: 'Erneut versuchen',
+  favorites: 'Favoriten',
+  all: 'Alle',
+  movies: 'Filme',
+  series: 'Serien',
+  live: 'LIVE',
+  news: 'Nachrichten',
+  sports: 'Sport',
+  cinema: 'Kino',
+  entertainment: 'Unterhaltung',
+  kids: 'Kinder',
+  music: 'Musik',
+  international: 'International',
+  epg: 'Programmfuhrer',
+  now: 'Jetzt',
+  next: 'Danach',
+  today: 'Heute',
+  tomorrow: 'Morgen',
+  channelUp: 'Kanal +',
+  channelDown: 'Kanal -',
+  volume: 'Lautstarke',
+  season: 'Staffel',
+  episode: 'Folge',
+  continueWatching: 'Weiterschauen',
+  watchFromStart: 'Von Anfang ansehen',
+  addToFavorites: 'Zu Favoriten hinzufugen',
+  removeFromFavorites: 'Aus Favoriten entfernen',
+  playlistManagement: 'Playlist-Verwaltung',
+  addPlaylist: 'Playlist hinzufugen',
+  appearance: 'Aussehen',
+  theme: 'Thema',
+  playback: 'Wiedergabe',
+  parentalControl: 'Kindersicherung',
+  language: 'Sprache',
+  about: 'Uber',
+  version: 'Version',
+  playlistName: 'Playlist-Name',
+  m3uUrl: 'M3U URL',
+  serverUrl: 'Server URL',
+  username: 'Benutzername',
+  password: 'Passwort',
+  saveAndLoad: 'Speichern und Laden',
+};
+
+const translations = { tr, en, de };
+
+export function t(key: TranslationKey, lang: 'tr' | 'en' | 'de' = 'tr'): string {
+  return translations[lang][key] || translations.tr[key] || key;
+}
