@@ -1,4 +1,4 @@
-export { FocusableItem } from './FocusableItem';
+export { FocusableItem, useFocusSound } from './FocusableItem';
 export { ProgressBar } from './ProgressBar';
 export { LiveBadge } from './LiveBadge';
 
