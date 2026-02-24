@@ -233,11 +233,15 @@ export async function getMovieVideos(movieId: number): Promise<TMDBVideo[]> {
 
   // Turkce fragman yoksa Ingilizce'yi de cek
   if (!videos.some(v => v.iso_639_1 === 'tr')) {
-    const enData = await tmdbFetch<{ results: TMDBVideo[] }>(
-      `/movie/${movieId}/videos`,
-      { language: 'en-US' }
-    );
-    videos = [...videos, ...enData.results];
+    try {
+      const enData = await tmdbFetch<{ results: TMDBVideo[] }>(
+        `/movie/${movieId}/videos`,
+        { language: 'en-US' }
+      );
+      videos = [...videos, ...enData.results];
+    } catch {
+      // EN fallback basarisizsa mevcut videolarla devam et
+    }
   }
 
   // Trailer'lari one al, sonra Teaser, sonra digerleri
@@ -326,11 +330,15 @@ export async function getTVShowVideos(tvId: number): Promise<TMDBVideo[]> {
   let videos = data.results;
 
   if (!videos.some(v => v.iso_639_1 === 'tr')) {
-    const enData = await tmdbFetch<{ results: TMDBVideo[] }>(
-      `/tv/${tvId}/videos`,
-      { language: 'en-US' }
-    );
-    videos = [...videos, ...enData.results];
+    try {
+      const enData = await tmdbFetch<{ results: TMDBVideo[] }>(
+        `/tv/${tvId}/videos`,
+        { language: 'en-US' }
+      );
+      videos = [...videos, ...enData.results];
+    } catch {
+      // EN fallback basarisizsa mevcut videolarla devam et
+    }
   }
 
   return videos.sort((a, b) => {

@@ -525,7 +525,8 @@ function checkIfCompleted(
   totalSeasons: number,
   totalEpisodesInLastSeason: number,
 ): boolean {
-  // Basit kontrol: son sezonun son bolumu izlendi mi?
+  if (totalSeasons <= 0 || totalEpisodesInLastSeason <= 0) return false;
+  // Son sezonun son bolumu izlendi mi?
   const lastKey = formatEpisodeKey(totalSeasons, totalEpisodesInLastSeason);
   return watchedEpisodes[lastKey]?.watched ?? false;
 }

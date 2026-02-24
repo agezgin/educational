@@ -99,7 +99,7 @@ export function SearchScreen() {
       setResults([]);
       setSuggestions([]);
     }
-  }, [query, category]);
+  }, [query, category, performSearch, searchHistory]);
 
   // Arama islemi
   const performSearch = useCallback(async (searchQuery: string, searchCategory: SearchCategory) => {

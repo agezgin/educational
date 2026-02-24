@@ -54,8 +54,6 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
   error: null,
 
   setChannels: (channels) => {
-    const groups = groupChannels(channels);
-
     // Favori bilgisini immutable olarak uygula
     const favIds = get().favoriteIds;
     const updatedChannels = favIds.size > 0
@@ -174,11 +172,12 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
   },
 
   searchChannels: (query) => {
+    if (!query) return [];
     const { channels } = get();
     const lowerQuery = query.toLowerCase();
     return channels.filter(ch =>
-      ch.name.toLowerCase().includes(lowerQuery) ||
-      ch.groupTitle.toLowerCase().includes(lowerQuery)
+      (ch.name?.toLowerCase().includes(lowerQuery)) ||
+      (ch.groupTitle?.toLowerCase().includes(lowerQuery))
     );
   },
 
