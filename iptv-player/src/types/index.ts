@@ -7,6 +7,8 @@ export type {
   FontSize,
   ListStyle,
   Language,
+  ScreensaverStyle,
+  ScreensaverTimeout,
   AppSettings,
 } from './settings';
 export { DEFAULT_SETTINGS } from './settings';

@@ -11,6 +11,8 @@ import {
   FontSize,
   ListStyle,
   Language,
+  ScreensaverStyle,
+  ScreensaverTimeout,
 } from '@/types';
 import { cacheManager } from '@/core/cache';
 
@@ -33,6 +35,8 @@ interface SettingsState extends AppSettings {
   setBufferDuration: (duration: AppSettings['bufferDuration']) => void;
   setHardwareDecoding: (enabled: boolean) => void;
   setOsdTimeout: (timeout: AppSettings['osdTimeout']) => void;
+  setScreensaverStyle: (style: ScreensaverStyle) => void;
+  setScreensaverTimeout: (timeout: ScreensaverTimeout) => void;
   setFirstLaunch: (isFirst: boolean) => void;
   setHasPlaylist: (has: boolean) => void;
 }
@@ -108,6 +112,16 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     saveSettings(get());
   },
 
+  setScreensaverStyle: (screensaverStyle) => {
+    set({ screensaverStyle });
+    saveSettings(get());
+  },
+
+  setScreensaverTimeout: (screensaverTimeout) => {
+    set({ screensaverTimeout });
+    saveSettings(get());
+  },
+
   setFirstLaunch: (isFirstLaunch) => set({ isFirstLaunch }),
   setHasPlaylist: (hasPlaylist) => set({ hasPlaylist }),
 }));
@@ -125,6 +139,8 @@ function saveSettings(state: SettingsState): void {
     bufferDuration: state.bufferDuration,
     hardwareDecoding: state.hardwareDecoding,
     osdTimeout: state.osdTimeout,
+    screensaverStyle: state.screensaverStyle,
+    screensaverTimeout: state.screensaverTimeout,
   };
   cacheManager.disk.saveSettings(settings);
 }

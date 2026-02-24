@@ -12,9 +12,10 @@
  * Eklenen:
  * - Global ErrorBoundary (uygulama crash'lerini yakalar)
  * - ThemeProvider (dark/light/amoled tema destegi)
+ * - Ekran Koruyucu sistemi (idle timer + gorsel animasyonlar)
  */
 
-import React, { Component, useEffect } from 'react';
+import React, { Component, useEffect, useCallback } from 'react';
 import { LogBox, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AppNavigator } from '@/navigation';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -23,6 +24,8 @@ import { cacheManager } from '@/core/cache';
 import { ThemeProvider } from '@/theme';
 import { t } from '@/i18n/translations';
 import { colors, typography, spacing } from '@/theme';
+import { useIdleTimer } from '@/hooks/useIdleTimer';
+import { ScreenSaver } from '@/components/screensaver';
 
 // Gelistirme sirasindaki gereksiz uyarilari kapat
 LogBox.ignoreLogs(['Require cycle']);
@@ -135,6 +138,23 @@ const App: React.FC = () => {
   const setChannels = useChannelStore(s => s.setChannels);
   const theme = useSettingsStore(s => s.theme);
   const accentColor = useSettingsStore(s => s.accentColor);
+  const screensaverStyle = useSettingsStore(s => s.screensaverStyle);
+  const screensaverTimeout = useSettingsStore(s => s.screensaverTimeout);
+
+  const handleIdle = useCallback(() => {
+    // Ekran koruyucu aktif olacak (isIdle state ile kontrol ediliyor)
+  }, []);
+
+  const handleActive = useCallback(() => {
+    // Ekran koruyucu kapanacak
+  }, []);
+
+  const { isIdle, dismissIdle } = useIdleTimer({
+    timeoutMs: screensaverTimeout * 60 * 1000, // dakika -> milisaniye
+    onIdle: handleIdle,
+    onActive: handleActive,
+    enabled: screensaverStyle !== 'off',
+  });
 
   useEffect(() => {
     async function bootstrap() {
@@ -161,6 +181,11 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ThemeProvider mode={theme} accentColor={accentColor}>
         <AppNavigator />
+        <ScreenSaver
+          visible={isIdle}
+          style={screensaverStyle}
+          onDismiss={dismissIdle}
+        />
       </ThemeProvider>
     </ErrorBoundary>
   );

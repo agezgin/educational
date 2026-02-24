@@ -5,6 +5,7 @@
  * - Playlist Yonetimi
  * - Gorunum (Tema, Renk, Font, Liste stili)
  * - Oynatma (Kalite, Buffer, HW Decoding, OSD)
+ * - Ekran Koruyucu (Stil, Bekleme suresi)
  * - Ebeveyn Kontrolu
  * - Dil
  * - Hakkinda
@@ -25,6 +26,8 @@ const FONT_LABELS = { normal: 'Normal', large: 'Buyuk' };
 const LIST_LABELS = { list: 'Liste', grid: 'Grid' };
 const LANG_LABELS = { tr: 'Turkce', en: 'English', de: 'Deutsch' };
 const QUALITY_LABELS = { auto: 'Otomatik', '1080p': '1080p', '720p': '720p', '480p': '480p' };
+const SCREENSAVER_STYLE_LABELS = { off: 'Kapali', floating: 'Suruklenen', clock: 'Saat', gradient: 'Aurora' };
+const SCREENSAVER_TIMEOUT_LABELS = { 3: '3 dk', 5: '5 dk', 10: '10 dk', 15: '15 dk', 30: '30 dk' };
 
 export const SettingsScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -72,6 +75,18 @@ export const SettingsScreen: React.FC = () => {
     const timeouts = [3, 5, 10] as const;
     const idx = timeouts.indexOf(settings.osdTimeout);
     settings.setOsdTimeout(timeouts[(idx + 1) % timeouts.length]);
+  }, [settings]);
+
+  const cycleScreensaverStyle = useCallback(() => {
+    const styles = ['gradient', 'floating', 'clock', 'off'] as const;
+    const idx = styles.indexOf(settings.screensaverStyle);
+    settings.setScreensaverStyle(styles[(idx + 1) % styles.length]);
+  }, [settings]);
+
+  const cycleScreensaverTimeout = useCallback(() => {
+    const timeouts = [3, 5, 10, 15, 30] as const;
+    const idx = timeouts.indexOf(settings.screensaverTimeout);
+    settings.setScreensaverTimeout(timeouts[(idx + 1) % timeouts.length]);
   }, [settings]);
 
   return (
@@ -156,6 +171,24 @@ export const SettingsScreen: React.FC = () => {
             type="select"
             onPress={cycleOSD}
           />
+        </SettingsSection>
+
+        {/* Ekran Koruyucu */}
+        <SettingsSection title="Ekran Koruyucu">
+          <SettingsItem
+            label="Koruyucu Stili"
+            value={SCREENSAVER_STYLE_LABELS[settings.screensaverStyle]}
+            type="select"
+            onPress={cycleScreensaverStyle}
+          />
+          {settings.screensaverStyle !== 'off' && (
+            <SettingsItem
+              label="Bekleme Suresi"
+              value={SCREENSAVER_TIMEOUT_LABELS[settings.screensaverTimeout]}
+              type="select"
+              onPress={cycleScreensaverTimeout}
+            />
+          )}
         </SettingsSection>
 
         {/* Ebeveyn Kontrolu */}

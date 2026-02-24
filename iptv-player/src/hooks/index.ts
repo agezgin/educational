@@ -15,3 +15,5 @@ export {
 } from './useImagePreload';
 export { useStreamHealth } from './useStreamHealth';
 export type { StreamHealthInfo } from './useStreamHealth';
+export { useIdleTimer, SCREENSAVER_TIMEOUT_PRESETS } from './useIdleTimer';
+export type { ScreensaverStyle, ScreensaverTimeout } from './useIdleTimer';

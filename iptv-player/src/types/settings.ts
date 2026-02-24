@@ -7,6 +7,8 @@ export type AccentColor = 'blue' | 'red' | 'green' | 'orange';
 export type FontSize = 'normal' | 'large';
 export type ListStyle = 'list' | 'grid';
 export type Language = 'tr' | 'en' | 'de';
+export type ScreensaverStyle = 'floating' | 'clock' | 'gradient' | 'off';
+export type ScreensaverTimeout = 3 | 5 | 10 | 15 | 30;
 
 export interface AppSettings {
   theme: ThemeMode;
@@ -20,6 +22,8 @@ export interface AppSettings {
   bufferDuration: 2 | 5 | 10;
   hardwareDecoding: boolean;
   osdTimeout: 3 | 5 | 10;
+  screensaverStyle: ScreensaverStyle;
+  screensaverTimeout: ScreensaverTimeout;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -33,4 +37,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   bufferDuration: 2,
   hardwareDecoding: true,
   osdTimeout: 5,
+  screensaverStyle: 'gradient',
+  screensaverTimeout: 5,
 };
