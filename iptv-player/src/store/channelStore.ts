@@ -5,9 +5,10 @@
  */
 
 import { create } from 'zustand';
-import { Channel, ChannelGroup } from '@/types';
+import { Channel, ChannelGroup, StreamAlternative } from '@/types';
 import { groupChannels } from '@/core/parser';
 import { cacheManager } from '@/core/cache';
+import { streamAlternatives } from '@/core/player/streamAlternatives';
 
 interface ChannelState {
   /** Tum kanallar (flat liste) */
@@ -28,6 +29,8 @@ interface ChannelState {
   isLoading: boolean;
   /** Hata mesaji */
   error: string | null;
+  /** Alternatif gruplama aktif mi */
+  alternativeGroupingEnabled: boolean;
 
   // Actions
   setChannels: (channels: Channel[]) => void;
@@ -40,6 +43,14 @@ interface ChannelState {
   searchChannels: (query: string) => Channel[];
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  /** Alternatifleri gruplama (M3U parse sonrasi) */
+  groupAlternatives: () => void;
+  /** Alternatif gruplama toggle */
+  setAlternativeGrouping: (enabled: boolean) => void;
+  /** Kanala manuel alternatif ekle */
+  addAlternative: (channelId: string, alternative: StreamAlternative) => void;
+  /** Kullanicinin tercih ettigi alternatifi kaydet */
+  setPreferredAlternative: (channelId: string, alternativeId: string) => void;
 }
 
 export const useChannelStore = create<ChannelState>((set, get) => ({
@@ -52,6 +63,7 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
   favoriteIds: new Set(),
   isLoading: false,
   error: null,
+  alternativeGroupingEnabled: true,
 
   setChannels: (channels) => {
     // Favori bilgisini immutable olarak uygula
@@ -183,4 +195,53 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
 
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
+
+  groupAlternatives: () => {
+    const { channels } = get();
+    const grouped = streamAlternatives.groupChannelAlternatives(channels);
+
+    cacheManager.memory.setChannels(grouped);
+    cacheManager.disk.saveChannels(grouped);
+
+    set({
+      channels: grouped,
+      groups: groupChannels(grouped),
+      activeGroupChannels: grouped,
+    });
+  },
+
+  setAlternativeGrouping: (enabled) => {
+    set({ alternativeGroupingEnabled: enabled });
+  },
+
+  addAlternative: (channelId, alternative) => {
+    const { channels } = get();
+    const updatedChannels = channels.map(ch => {
+      if (ch.id !== channelId) return ch;
+      const existing = ch.alternativeUrls || [];
+      return {
+        ...ch,
+        alternativeUrls: [...existing, alternative],
+      };
+    });
+
+    set({ channels: updatedChannels });
+  },
+
+  setPreferredAlternative: (channelId, alternativeId) => {
+    const { channels, currentChannel } = get();
+    const updatedChannels = channels.map(ch => {
+      if (ch.id !== channelId) return ch;
+      return { ...ch, preferredAlternativeId: alternativeId };
+    });
+
+    set({ channels: updatedChannels });
+
+    // Mevcut kanal guncellenmis ise onu da guncelle
+    if (currentChannel?.id === channelId) {
+      set({
+        currentChannel: { ...currentChannel, preferredAlternativeId: alternativeId },
+      });
+    }
+  },
 }));

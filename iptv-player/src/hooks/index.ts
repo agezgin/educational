@@ -13,3 +13,5 @@ export {
   useHeroBannerDebounce,
   useViewabilityPreload,
 } from './useImagePreload';
+export { useStreamHealth } from './useStreamHealth';
+export type { StreamHealthInfo } from './useStreamHealth';
