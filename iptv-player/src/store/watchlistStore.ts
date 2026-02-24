@@ -8,9 +8,13 @@
  * - Izleme Durumu: izlenmedi / izleniyor / tamamlandi / yarida kaldi
  * - Progress: Film/bolum progress (saniye) ve yuzdesi
  * - Benzer icerik onerisi: Begenilenlerin tur/yonetmen/oyuncu analizi
+ *
+ * Persist: Tum kullanici verileri cihazda kalici saklanir.
  */
 
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { zustandStorage, STORE_NAMES } from './persistStorage';
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -97,166 +101,180 @@ interface WatchlistState {
   getLikedByGenre: (genre: string) => LikedItem[];
 }
 
-export const useWatchlistStore = create<WatchlistState>((set, get) => ({
-  watchlist: [],
-  likedItems: [],
-  progressMap: {},
+export const useWatchlistStore = create<WatchlistState>()(
+  persist(
+    (set, get) => ({
+      watchlist: [],
+      likedItems: [],
+      progressMap: {},
 
-  // ── Daha Sonra Izle ──
+      // ── Daha Sonra Izle ──
 
-  addToWatchlist: (item) => {
-    const existing = get().watchlist.find(w => w.contentId === item.contentId);
-    if (existing) return;
+      addToWatchlist: (item) => {
+        const existing = get().watchlist.find(w => w.contentId === item.contentId);
+        if (existing) return;
 
-    set(state => ({
-      watchlist: [{ ...item, addedAt: Date.now() }, ...state.watchlist],
-    }));
-  },
-
-  removeFromWatchlist: (contentId) => {
-    set(state => ({
-      watchlist: state.watchlist.filter(w => w.contentId !== contentId),
-    }));
-  },
-
-  isInWatchlist: (contentId) => {
-    return get().watchlist.some(w => w.contentId === contentId);
-  },
-
-  // ── Begeni ──
-
-  toggleLike: (item) => {
-    const { likedItems } = get();
-    const existing = likedItems.find(l => l.contentId === item.contentId);
-
-    if (existing) {
-      set({ likedItems: likedItems.filter(l => l.contentId !== item.contentId) });
-    } else {
-      set({ likedItems: [{ ...item, likedAt: Date.now() }, ...likedItems] });
-    }
-  },
-
-  isLiked: (contentId) => {
-    return get().likedItems.some(l => l.contentId === contentId);
-  },
-
-  // ── Izleme Durumu ──
-
-  updateProgress: (progress) => {
-    const lastWatchedAt = Date.now();
-    const percentWatched = progress.totalDuration > 0
-      ? progress.currentTime / progress.totalDuration
-      : 0;
-
-    // Otomatik durum tespiti - kullanicinin manuel ayarladigi durumu (abandoned vb.) ezme
-    let status = progress.status;
-    const existingProgress = get().progressMap[progress.contentId];
-    const isUserSetStatus = existingProgress &&
-      (existingProgress.status === 'abandoned' || existingProgress.status === 'completed');
-
-    if (!isUserSetStatus) {
-      if (percentWatched >= 0.92) {
-        status = 'completed';
-      } else if (percentWatched > 0.02) {
-        status = 'watching';
-      }
-    }
-
-    set(state => ({
-      progressMap: {
-        ...state.progressMap,
-        [progress.contentId]: { ...progress, status, lastWatchedAt },
+        set(state => ({
+          watchlist: [{ ...item, addedAt: Date.now() }, ...state.watchlist],
+        }));
       },
-    }));
-  },
 
-  getProgress: (contentId) => {
-    return get().progressMap[contentId];
-  },
+      removeFromWatchlist: (contentId) => {
+        set(state => ({
+          watchlist: state.watchlist.filter(w => w.contentId !== contentId),
+        }));
+      },
 
-  markCompleted: (contentId) => {
-    const existing = get().progressMap[contentId];
-    if (existing) {
-      set(state => ({
-        progressMap: {
-          ...state.progressMap,
-          [contentId]: { ...existing, status: 'completed', lastWatchedAt: Date.now() },
-        },
-      }));
-    }
-  },
+      isInWatchlist: (contentId) => {
+        return get().watchlist.some(w => w.contentId === contentId);
+      },
 
-  markAbandoned: (contentId) => {
-    const existing = get().progressMap[contentId];
-    if (existing) {
-      set(state => ({
-        progressMap: {
-          ...state.progressMap,
-          [contentId]: { ...existing, status: 'abandoned', lastWatchedAt: Date.now() },
-        },
-      }));
-    }
-  },
+      // ── Begeni ──
 
-  // ── Queries ──
+      toggleLike: (item) => {
+        const { likedItems } = get();
+        const existing = likedItems.find(l => l.contentId === item.contentId);
 
-  getContinueWatching: () => {
-    const { progressMap } = get();
-    return Object.values(progressMap)
-      .filter(p => p.status === 'watching' && p.currentTime > 0)
-      .sort((a, b) => b.lastWatchedAt - a.lastWatchedAt);
-  },
-
-  getRecentlyWatched: (limit = 20) => {
-    const { progressMap } = get();
-    return Object.values(progressMap)
-      .sort((a, b) => b.lastWatchedAt - a.lastWatchedAt)
-      .slice(0, limit);
-  },
-
-  getCompleted: () => {
-    const { progressMap } = get();
-    return Object.values(progressMap)
-      .filter(p => p.status === 'completed')
-      .sort((a, b) => b.lastWatchedAt - a.lastWatchedAt);
-  },
-
-  getTasteProfile: () => {
-    const { likedItems, progressMap } = get();
-
-    // Tur frekans analizi
-    const genreCount: Record<string, number> = {};
-    for (const item of likedItems) {
-      if (item.genre) {
-        const genres = item.genre.split(/[,&/]/).map(g => g.trim());
-        for (const genre of genres) {
-          if (genre) genreCount[genre] = (genreCount[genre] || 0) + 1;
+        if (existing) {
+          set({ likedItems: likedItems.filter(l => l.contentId !== item.contentId) });
+        } else {
+          set({ likedItems: [{ ...item, likedAt: Date.now() }, ...likedItems] });
         }
-      }
-    }
+      },
 
-    const topGenres = Object.entries(genreCount)
-      .map(([genre, count]) => ({ genre, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      isLiked: (contentId) => {
+        return get().likedItems.some(l => l.contentId === contentId);
+      },
 
-    // Toplam izleme saati
-    const totalWatchSeconds = Object.values(progressMap)
-      .reduce((sum, p) => sum + p.currentTime, 0);
+      // ── Izleme Durumu ──
 
-    return {
-      topGenres,
-      totalLikes: likedItems.length,
-      totalWatchHours: Math.round(totalWatchSeconds / 3600),
-    };
-  },
+      updateProgress: (progress) => {
+        const lastWatchedAt = Date.now();
+        const percentWatched = progress.totalDuration > 0
+          ? progress.currentTime / progress.totalDuration
+          : 0;
 
-  getLikedByGenre: (genre) => {
-    return get().likedItems.filter(item =>
-      item.genre?.toLowerCase().includes(genre.toLowerCase()),
-    );
-  },
-}));
+        // Otomatik durum tespiti - kullanicinin manuel ayarladigi durumu (abandoned vb.) ezme
+        let status = progress.status;
+        const existingProgress = get().progressMap[progress.contentId];
+        const isUserSetStatus = existingProgress &&
+          (existingProgress.status === 'abandoned' || existingProgress.status === 'completed');
+
+        if (!isUserSetStatus) {
+          if (percentWatched >= 0.92) {
+            status = 'completed';
+          } else if (percentWatched > 0.02) {
+            status = 'watching';
+          }
+        }
+
+        set(state => ({
+          progressMap: {
+            ...state.progressMap,
+            [progress.contentId]: { ...progress, status, lastWatchedAt },
+          },
+        }));
+      },
+
+      getProgress: (contentId) => {
+        return get().progressMap[contentId];
+      },
+
+      markCompleted: (contentId) => {
+        const existing = get().progressMap[contentId];
+        if (existing) {
+          set(state => ({
+            progressMap: {
+              ...state.progressMap,
+              [contentId]: { ...existing, status: 'completed', lastWatchedAt: Date.now() },
+            },
+          }));
+        }
+      },
+
+      markAbandoned: (contentId) => {
+        const existing = get().progressMap[contentId];
+        if (existing) {
+          set(state => ({
+            progressMap: {
+              ...state.progressMap,
+              [contentId]: { ...existing, status: 'abandoned', lastWatchedAt: Date.now() },
+            },
+          }));
+        }
+      },
+
+      // ── Queries ──
+
+      getContinueWatching: () => {
+        const { progressMap } = get();
+        return Object.values(progressMap)
+          .filter(p => p.status === 'watching' && p.currentTime > 0)
+          .sort((a, b) => b.lastWatchedAt - a.lastWatchedAt);
+      },
+
+      getRecentlyWatched: (limit = 20) => {
+        const { progressMap } = get();
+        return Object.values(progressMap)
+          .sort((a, b) => b.lastWatchedAt - a.lastWatchedAt)
+          .slice(0, limit);
+      },
+
+      getCompleted: () => {
+        const { progressMap } = get();
+        return Object.values(progressMap)
+          .filter(p => p.status === 'completed')
+          .sort((a, b) => b.lastWatchedAt - a.lastWatchedAt);
+      },
+
+      getTasteProfile: () => {
+        const { likedItems, progressMap } = get();
+
+        // Tur frekans analizi
+        const genreCount: Record<string, number> = {};
+        for (const item of likedItems) {
+          if (item.genre) {
+            const genres = item.genre.split(/[,&/]/).map(g => g.trim());
+            for (const genre of genres) {
+              if (genre) genreCount[genre] = (genreCount[genre] || 0) + 1;
+            }
+          }
+        }
+
+        const topGenres = Object.entries(genreCount)
+          .map(([genre, count]) => ({ genre, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 10);
+
+        // Toplam izleme saati
+        const totalWatchSeconds = Object.values(progressMap)
+          .reduce((sum, p) => sum + p.currentTime, 0);
+
+        return {
+          topGenres,
+          totalLikes: likedItems.length,
+          totalWatchHours: Math.round(totalWatchSeconds / 3600),
+        };
+      },
+
+      getLikedByGenre: (genre) => {
+        return get().likedItems.filter(item =>
+          item.genre?.toLowerCase().includes(genre.toLowerCase()),
+        );
+      },
+    }),
+    {
+      name: STORE_NAMES.WATCHLIST,
+      storage: createJSONStorage(() => zustandStorage),
+      // Tum kullanici verilerini persist et
+      partialize: (state) => ({
+        watchlist: state.watchlist,
+        likedItems: state.likedItems,
+        progressMap: state.progressMap,
+      }),
+    },
+  ),
+);
 
 // ─── Helper: Progress gosterim formati ──────────────────
 

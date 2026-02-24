@@ -290,7 +290,7 @@ export function transformMovieCatalog(
 
   for (const group of groups) {
     const analysis = analyzeCategory(group.name);
-    const items = group.movies.slice(0, 20).map(m => ({
+    const items = (group.movies || []).slice(0, 20).map(m => ({
       ...movieToItem(m),
       platform: analysis.platform,
       originalGroup: group.name,
@@ -466,7 +466,7 @@ export function transformSeriesCatalog(
 
   for (const group of groups) {
     const analysis = analyzeCategory(group.name);
-    const items = group.series.slice(0, 20).map(s => ({
+    const items = (group.series || []).slice(0, 20).map(s => ({
       ...seriesToItem(s),
       platform: analysis.platform,
       originalGroup: group.name,

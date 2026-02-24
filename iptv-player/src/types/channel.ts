@@ -2,6 +2,26 @@
  * Kanal ve playlist ile ilgili tum type tanimlari.
  */
 
+/** Bir kanalin alternatif stream URL'i */
+export interface StreamAlternative {
+  /** Benzersiz alternatif ID'si */
+  id: string;
+  /** Stream URL */
+  url: string;
+  /** Kullaniciya gosterilecek etiket ("HD", "Yedek 1", "SD" vs.) */
+  label: string;
+  /** Kalite siralamasinda oncelik (yuksek = daha iyi) */
+  priority: number;
+  /** Bu alternatif aktif mi (erisilebilir mi) */
+  isActive: boolean;
+  /** Son basarili erisim zamani */
+  lastSuccessAt?: number;
+  /** Son hata zamani */
+  lastFailedAt?: number;
+  /** Ard arda basarisizlik sayisi */
+  consecutiveFailures: number;
+}
+
 export interface Channel {
   id: string;
   name: string;
@@ -19,6 +39,10 @@ export interface Channel {
   streamId?: number;
   /** catchup / timeshift destegi */
   catchupSupport: boolean;
+  /** Alternatif stream URL'leri (ayni kanalin farkli kaynaklari) */
+  alternativeUrls?: StreamAlternative[];
+  /** Kullanicinin tercih ettigi alternatif ID'si */
+  preferredAlternativeId?: string;
 }
 
 export interface ChannelGroup {

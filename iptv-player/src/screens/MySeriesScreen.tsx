@@ -209,7 +209,7 @@ export function MySeriesScreen() {
               <Text style={styles.userRatingLabel}>Puanın:</Text>
               {Array.from({ length: 10 }, (_, i) => (
                 <Text
-                  key={i}
+                  key={`star_${i}`}
                   style={[
                     styles.userRatingStar,
                     i < (item.userRating || 0) && styles.userRatingStarFilled,

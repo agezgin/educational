@@ -60,10 +60,14 @@ class MemoryCache {
 
   /** Logo URL'ini bellekte cache'le (LRU mantigi) */
   cacheLogo(channelId: string, uri: string): void {
-    if (this.logoCache.size >= MAX_MEMORY_LOGOS) {
-      // En eski entry'yi sil (Map insertion order)
+    // Limiti asarsa en eski entry'leri sil
+    while (this.logoCache.size >= MAX_MEMORY_LOGOS) {
       const firstKey = this.logoCache.keys().next().value;
-      if (firstKey) this.logoCache.delete(firstKey);
+      if (firstKey) {
+        this.logoCache.delete(firstKey);
+      } else {
+        break;
+      }
     }
     this.logoCache.set(channelId, uri);
   }
@@ -104,7 +108,8 @@ export interface StorageAdapter {
 }
 
 class DiskCache {
-  private storage: StorageAdapter | null = null;
+  /** Storage adapter - persist middleware tarafindan da kullanilir */
+  storage: StorageAdapter | null = null;
 
   init(storage: StorageAdapter): void {
     this.storage = storage;

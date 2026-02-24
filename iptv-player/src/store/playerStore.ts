@@ -1,9 +1,13 @@
 /**
  * Player Store - Video oynatici state yonetimi
+ *
+ * Persist: volume, isMuted, quality ayarlari cihazda saklanir.
  */
 
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { PlayerState, VideoQuality, OSDInfo } from '@/types';
+import { zustandStorage, STORE_NAMES } from './persistStorage';
 
 interface PlayerStoreState {
   /** Oynatici durumu */
@@ -35,56 +39,70 @@ interface PlayerStoreState {
   setFullscreen: (fullscreen: boolean) => void;
 }
 
-export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
-  state: 'idle',
-  volume: 85,
-  isMuted: false,
-  quality: 'auto',
-  osd: {
-    visible: false,
-    channelName: '',
-    volume: 85,
-  },
-  isFullscreen: true,
-  streamUrl: null,
+export const usePlayerStore = create<PlayerStoreState>()(
+  persist(
+    (set, get) => ({
+      state: 'idle',
+      volume: 85,
+      isMuted: false,
+      quality: 'auto',
+      osd: {
+        visible: false,
+        channelName: '',
+        volume: 85,
+      },
+      isFullscreen: true,
+      streamUrl: null,
 
-  setState: (state) => set({ state }),
+      setState: (state) => set({ state }),
 
-  setVolume: (volume) => {
-    const clamped = Math.max(0, Math.min(100, volume));
-    set({ volume: clamped, isMuted: clamped === 0 });
-  },
+      setVolume: (volume) => {
+        const clamped = Math.max(0, Math.min(100, volume));
+        set({ volume: clamped, isMuted: clamped === 0 });
+      },
 
-  toggleMute: () => {
-    const { isMuted } = get();
-    set({ isMuted: !isMuted });
-  },
+      toggleMute: () => {
+        const { isMuted } = get();
+        set({ isMuted: !isMuted });
+      },
 
-  volumeUp: (step = 5) => {
-    const { volume } = get();
-    get().setVolume(volume + step);
-  },
+      volumeUp: (step = 5) => {
+        const { volume } = get();
+        get().setVolume(volume + step);
+      },
 
-  volumeDown: (step = 5) => {
-    const { volume } = get();
-    get().setVolume(volume - step);
-  },
+      volumeDown: (step = 5) => {
+        const { volume } = get();
+        get().setVolume(volume - step);
+      },
 
-  setQuality: (quality) => set({ quality }),
+      setQuality: (quality) => set({ quality }),
 
-  showOSD: () => set(s => ({
-    osd: { ...s.osd, visible: true },
-  })),
+      showOSD: () => set(s => ({
+        osd: { ...s.osd, visible: true },
+      })),
 
-  hideOSD: () => set(s => ({
-    osd: { ...s.osd, visible: false },
-  })),
+      hideOSD: () => set(s => ({
+        osd: { ...s.osd, visible: false },
+      })),
 
-  updateOSD: (info) => set(s => ({
-    osd: { ...s.osd, ...info },
-  })),
+      updateOSD: (info) => set(s => ({
+        osd: { ...s.osd, ...info },
+      })),
 
-  setStreamUrl: (url) => set({ streamUrl: url }),
+      setStreamUrl: (url) => set({ streamUrl: url }),
 
-  setFullscreen: (fullscreen) => set({ isFullscreen: fullscreen }),
-}));
+      setFullscreen: (fullscreen) => set({ isFullscreen: fullscreen }),
+    }),
+    {
+      name: STORE_NAMES.PLAYER,
+      storage: createJSONStorage(() => zustandStorage),
+      // Sadece kullanici tercihlerini persist et, gecici state'leri degil
+      partialize: (state) => ({
+        volume: state.volume,
+        isMuted: state.isMuted,
+        quality: state.quality,
+      }),
+    },
+  ),
+);

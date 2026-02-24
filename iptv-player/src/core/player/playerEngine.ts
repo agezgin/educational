@@ -12,6 +12,7 @@
  */
 
 import { PlayerConfig, PlayerStatus, PlayerState, VideoQuality, Channel } from '@/types';
+import { streamAlternatives } from './streamAlternatives';
 
 /** Varsayilan player konfigurasyonu */
 export const DEFAULT_PLAYER_CONFIG: PlayerConfig = {
@@ -36,6 +37,7 @@ export class PreloadManager {
 
   /**
    * Mevcut kanalin komsu kanallarini preload listesine ekler.
+   * Her kanal icin en iyi alternatif URL kullanilir.
    */
   updatePreloadQueue(channels: Channel[], currentIndex: number): string[] {
     this.preloadedUrls.clear();
@@ -45,19 +47,27 @@ export class PreloadManager {
       // Ustteki kanal
       const prevIdx = currentIndex - i;
       if (prevIdx >= 0) {
-        toPreload.push(channels[prevIdx].url);
-        this.preloadedUrls.add(channels[prevIdx].url);
+        const url = this.getBestUrl(channels[prevIdx]);
+        toPreload.push(url);
+        this.preloadedUrls.add(url);
       }
 
       // Alttaki kanal
       const nextIdx = currentIndex + i;
       if (nextIdx < channels.length) {
-        toPreload.push(channels[nextIdx].url);
-        this.preloadedUrls.add(channels[nextIdx].url);
+        const url = this.getBestUrl(channels[nextIdx]);
+        toPreload.push(url);
+        this.preloadedUrls.add(url);
       }
     }
 
     return toPreload;
+  }
+
+  /** Kanal icin en uygun URL'i dondurur (alternatifler dahil) */
+  private getBestUrl(channel: Channel): string {
+    const result = streamAlternatives.selectBestAlternative(channel);
+    return result?.url || channel.url;
   }
 
   isPreloaded(url: string): boolean {
@@ -66,6 +76,12 @@ export class PreloadManager {
 
   clear(): void {
     this.preloadedUrls.clear();
+  }
+
+  /** Tum kaynaklari serbest birak */
+  dispose(): void {
+    this.preloadedUrls.clear();
+    this.maxPreloads = 0;
   }
 }
 

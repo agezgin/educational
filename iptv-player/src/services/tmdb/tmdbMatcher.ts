@@ -131,7 +131,7 @@ export async function batchMatch(
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize);
 
-    const batchResults = await Promise.all(
+    const batchResults = await Promise.allSettled(
       batch.map(item =>
         item.type === 'movie'
           ? matchMovie(item.name)
@@ -141,8 +141,8 @@ export async function batchMatch(
 
     for (let j = 0; j < batch.length; j++) {
       const result = batchResults[j];
-      if (result) {
-        results.set(batch[j].id, result);
+      if (result.status === 'fulfilled' && result.value) {
+        results.set(batch[j].id, result.value);
       }
     }
 
@@ -190,5 +190,6 @@ function findBestMatch(
   });
 
   scored.sort((a, b) => b.score - a.score);
-  return scored[0].score > 0 ? scored[0].item : results[0];
+  // Skor 0 ise hicbir isim eslesmesi yok, yanlis sonuc donme
+  return scored[0].score > 0 ? scored[0].item : null;
 }
