@@ -77,6 +77,12 @@ export class PreloadManager {
   clear(): void {
     this.preloadedUrls.clear();
   }
+
+  /** Tum kaynaklari serbest birak */
+  dispose(): void {
+    this.preloadedUrls.clear();
+    this.maxPreloads = 0;
+  }
 }
 
 /**

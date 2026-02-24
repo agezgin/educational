@@ -36,7 +36,54 @@ export const imageUrl = {
     path ? `${TMDB_IMAGE_BASE}/${size}${path}` : null,
 };
 
-// ─── API Fetch Yardimcisi ─────────────────────────────────────
+// ─── Retry & Rate Limiting Altyapisi ──────────────────────────
+
+/** Basit bellek-ici response cache */
+const responseCache = new Map<string, { data: unknown; expiresAt: number }>();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 dakika
+const MAX_CACHE_ENTRIES = 200;
+
+/** Rate limiter - TMDB API limitlerine uyum */
+let requestQueue: Array<() => void> = [];
+let activeRequests = 0;
+const MAX_CONCURRENT = 4;
+
+function enqueueRequest(): Promise<void> {
+  if (activeRequests < MAX_CONCURRENT) {
+    activeRequests++;
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    requestQueue.push(() => {
+      activeRequests++;
+      resolve();
+    });
+  });
+}
+
+function dequeueRequest(): void {
+  activeRequests--;
+  const next = requestQueue.shift();
+  if (next) next();
+}
+
+function cleanupCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of responseCache) {
+    if (entry.expiresAt < now) responseCache.delete(key);
+  }
+  if (responseCache.size > MAX_CACHE_ENTRIES) {
+    const entries = [...responseCache.entries()].sort((a, b) => a[1].expiresAt - b[1].expiresAt);
+    const toRemove = entries.slice(0, entries.length - MAX_CACHE_ENTRIES);
+    for (const [key] of toRemove) responseCache.delete(key);
+  }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ─── API Fetch Yardimcisi (Retry + Rate Limit + Cache) ───────
 
 async function tmdbFetch<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
   if (!API_KEY) {
@@ -52,18 +99,66 @@ async function tmdbFetch<T>(endpoint: string, params?: Record<string, string>): 
     }
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const cacheKey = url.toString();
+
+  // 1. Cache kontrol
+  const cached = responseCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data as T;
+  }
+
+  // 2. Rate limit bekle
+  await enqueueRequest();
+
+  // 3. Retry ile fetch (exponential backoff)
+  const maxRetries = 3;
+  const retryDelays = [1000, 2000, 4000];
+  let lastError: Error | null = null;
 
   try {
-    const response = await fetch(url.toString(), { signal: controller.signal });
-    if (!response.ok) {
-      throw new Error(`TMDB API hatasi: ${response.status} ${response.statusText}`);
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        try {
+          const response = await fetch(url.toString(), { signal: controller.signal });
+
+          // Rate limit (429) - bekle ve tekrar dene
+          if (response.status === 429) {
+            const retryAfter = parseInt(response.headers.get('Retry-After') || '2', 10);
+            if (attempt < maxRetries) {
+              await sleep(retryAfter * 1000);
+              continue;
+            }
+          }
+
+          if (!response.ok) {
+            throw new Error(`TMDB API hatasi: ${response.status} ${response.statusText}`);
+          }
+
+          const data = await response.json();
+
+          // Cache'e kaydet
+          responseCache.set(cacheKey, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+          if (responseCache.size > MAX_CACHE_ENTRIES * 1.2) cleanupCache();
+
+          return data;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        if (attempt < maxRetries) {
+          await sleep(retryDelays[attempt] || 4000);
+        }
+      }
     }
-    return response.json();
   } finally {
-    clearTimeout(timeoutId);
+    dequeueRequest();
   }
+
+  throw lastError || new Error('TMDB API istegi basarisiz oldu');
 }
 
 // ─── Response Type'lari ───────────────────────────────────────

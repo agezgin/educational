@@ -18,6 +18,7 @@ import { FocusableItem } from '@/components/common';
 import { useChannelStore } from '@/store/channelStore';
 import { colors, typography, spacing } from '@/theme';
 import { Channel, RootStackParamList } from '@/types';
+import { t } from '@/i18n/translations';
 
 type HomeNav = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -66,17 +67,17 @@ export const HomeScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <FocusableItem onPress={handleNavigateEPG} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>EPG</Text>
+          <Text style={styles.headerButtonText}>{t('epg')}</Text>
         </FocusableItem>
 
-        <Text style={styles.title}>TurkIPTV Player</Text>
+        <Text style={styles.title}>{t('appName')}</Text>
 
         <View style={styles.headerRight}>
           <FocusableItem onPress={handleNavigateSearch} style={styles.headerButton}>
-            <Text style={styles.headerButtonText}>Ara</Text>
+            <Text style={styles.headerButtonText}>{t('search')}</Text>
           </FocusableItem>
           <FocusableItem onPress={handleNavigateSettings} style={styles.headerButton}>
-            <Text style={styles.headerButtonText}>Ayarlar</Text>
+            <Text style={styles.headerButtonText}>{t('settings')}</Text>
           </FocusableItem>
         </View>
       </View>
@@ -103,10 +104,10 @@ export const HomeScreen: React.FC = () => {
 
       {/* Footer: Kumanda navigasyon ipuclari */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>{'<> Gezin'}</Text>
-        <Text style={styles.footerText}>OK Izle</Text>
-        <Text style={styles.footerText}>* Favori Ekle</Text>
-        <Text style={styles.footerText}>{'<- Geri'}</Text>
+        <Text style={styles.footerText}>{'<>'} {t('navigate')}</Text>
+        <Text style={styles.footerText}>OK {t('watch')}</Text>
+        <Text style={styles.footerText}>* {t('addFavoriteShort')}</Text>
+        <Text style={styles.footerText}>{'<-'} {t('back')}</Text>
       </View>
     </View>
   );

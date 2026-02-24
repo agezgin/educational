@@ -23,6 +23,7 @@ import { View, Text, Image, Animated, StyleSheet } from 'react-native';
 import { ProgressBar } from '@/components/common';
 import { colors, typography, spacing, borderRadius, OSD_HEIGHT } from '@/theme';
 import { OSDInfo } from '@/types';
+import { t } from '@/i18n/translations';
 
 interface OSDOverlayProps {
   info: OSDInfo;
@@ -75,9 +76,14 @@ export const OSDOverlay: React.FC<OSDOverlayProps> = memo(({
   };
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+    <Animated.View
+      style={[styles.container, { opacity: fadeAnim }]}
+      accessible={true}
+      accessibilityRole="alert"
+      accessibilityLabel={`${info.channelName}, ${t('volume')} ${info.volume}%`}
+    >
       {/* Kanal yukari gostergesi */}
-      <Text style={styles.channelSwitch}>CH+</Text>
+      <Text style={styles.channelSwitch} accessibilityLabel={t('channelUp')}>CH+</Text>
 
       <View style={styles.content}>
         {/* Logo */}
@@ -116,7 +122,7 @@ export const OSDOverlay: React.FC<OSDOverlayProps> = memo(({
               />
               {info.nextProgram && (
                 <Text style={styles.nextProgram}>
-                  Sonra: {info.nextProgram.title} ({formatTime(info.nextProgram.startTime)})
+                  {t('next')}: {info.nextProgram.title} ({formatTime(info.nextProgram.startTime)})
                 </Text>
               )}
             </>
@@ -126,7 +132,7 @@ export const OSDOverlay: React.FC<OSDOverlayProps> = memo(({
 
       {/* Alt bilgi */}
       <View style={styles.footer}>
-        <Text style={styles.channelSwitch}>CH-</Text>
+        <Text style={styles.channelSwitch} accessibilityLabel={t('channelDown')}>CH-</Text>
         <Text style={styles.volumeText}>Vol {info.volume}%</Text>
       </View>
     </Animated.View>

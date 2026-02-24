@@ -169,7 +169,13 @@ export const AdvancedSeekBar: React.FC<AdvancedSeekBarProps> = memo(({
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      accessible={true}
+      accessibilityRole="adjustable"
+      accessibilityLabel={`${formatTime(displayTime)} / ${formatTime(duration)}`}
+      accessibilityHint="Sol/sag ok tuslari ile ileri geri sarin"
+    >
       {/* Seek bilgisi */}
       {seekState.isSeeking && (
         <View style={styles.seekInfo}>

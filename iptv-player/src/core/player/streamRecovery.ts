@@ -141,6 +141,7 @@ export class StreamRecoveryManager {
     this.callbacks = null;
     this.lastProgress = 0;
     this.lastProgressTime = 0;
+    this.state = this.createInitialState('');
   }
 
   /**
@@ -285,6 +286,12 @@ export class StreamRecoveryManager {
     };
     this.state.activeRecovery = action;
 
+    // Onceki retry timer'i temizle (hizli art arda cagirilma durumunda)
+    if (this.retryTimer) {
+      clearTimeout(this.retryTimer);
+      this.retryTimer = null;
+    }
+
     this.retryTimer = setTimeout(() => {
       this.state.currentUrlRetries++;
       this.state.totalRetries++;
@@ -345,6 +352,12 @@ export class StreamRecoveryManager {
       label: result.label,
     };
     this.state.activeRecovery = action;
+
+    // Onceki timer'i temizle
+    if (this.retryTimer) {
+      clearTimeout(this.retryTimer);
+      this.retryTimer = null;
+    }
 
     // Kisa bir gecikme sonra gec (UI'nin guncellenmesi icin)
     this.retryTimer = setTimeout(() => {

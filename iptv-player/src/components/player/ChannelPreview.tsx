@@ -20,6 +20,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { colors } from '@/theme/colors';
+import { t } from '@/i18n/translations';
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -59,7 +60,12 @@ export function ChannelPreview({
       styles.container,
       direction === 'up' ? styles.positionTop : styles.positionBottom,
     ]}>
-      <View style={styles.previewCard}>
+      <View
+        style={styles.previewCard}
+        accessible={true}
+        accessibilityRole="alert"
+        accessibilityLabel={`${channelNumber} ${channelName}${currentProgram ? `, ${currentProgram}` : ''}`}
+      >
         {/* Yon gostergesi */}
         <View style={styles.directionIndicator}>
           <Text style={styles.directionArrow}>
@@ -82,7 +88,7 @@ export function ChannelPreview({
           )}
           {nextProgram && (
             <Text style={styles.nextProgram} numberOfLines={1}>
-              Sonra: {nextProgram}
+              {t('next')}: {nextProgram}
             </Text>
           )}
         </View>
