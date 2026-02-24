@@ -148,4 +148,4 @@ export const SCREENSAVER_TIMEOUT_PRESETS = [3, 5, 10, 15, 30] as const;
 export type ScreensaverTimeout = typeof SCREENSAVER_TIMEOUT_PRESETS[number];
 
 /** Ekran koruyucu turleri */
-export type ScreensaverStyle = 'floating' | 'clock' | 'gradient' | 'off';
+export type ScreensaverStyle = 'fireplace' | 'snowfall' | 'starryNight' | 'aurora' | 'clock' | 'off';

@@ -26,7 +26,10 @@ const FONT_LABELS = { normal: 'Normal', large: 'Buyuk' };
 const LIST_LABELS = { list: 'Liste', grid: 'Grid' };
 const LANG_LABELS = { tr: 'Turkce', en: 'English', de: 'Deutsch' };
 const QUALITY_LABELS = { auto: 'Otomatik', '1080p': '1080p', '720p': '720p', '480p': '480p' };
-const SCREENSAVER_STYLE_LABELS = { off: 'Kapali', floating: 'Suruklenen', clock: 'Saat', gradient: 'Aurora' };
+const SCREENSAVER_STYLE_LABELS = {
+  fireplace: 'Somine', snowfall: 'Kar Yagisi', starryNight: 'Yildizli Gece',
+  aurora: 'Kuzey Isiklari', clock: 'Saat', off: 'Kapali',
+};
 const SCREENSAVER_TIMEOUT_LABELS = { 3: '3 dk', 5: '5 dk', 10: '10 dk', 15: '15 dk', 30: '30 dk' };
 
 export const SettingsScreen: React.FC = () => {
@@ -78,7 +81,7 @@ export const SettingsScreen: React.FC = () => {
   }, [settings]);
 
   const cycleScreensaverStyle = useCallback(() => {
-    const styles = ['gradient', 'floating', 'clock', 'off'] as const;
+    const styles = ['fireplace', 'snowfall', 'starryNight', 'aurora', 'clock', 'off'] as const;
     const idx = styles.indexOf(settings.screensaverStyle);
     settings.setScreensaverStyle(styles[(idx + 1) % styles.length]);
   }, [settings]);
